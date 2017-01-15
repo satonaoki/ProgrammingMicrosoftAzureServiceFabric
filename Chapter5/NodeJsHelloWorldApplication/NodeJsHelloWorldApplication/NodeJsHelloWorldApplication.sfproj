@@ -2,7 +2,7 @@
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\packages\Microsoft.VisualStudio.Azure.Fabric.MSBuild.1.4.0\build\Microsoft.VisualStudio.Azure.Fabric.Application.props" Condition="Exists('..\packages\Microsoft.VisualStudio.Azure.Fabric.MSBuild.1.4.0\build\Microsoft.VisualStudio.Azure.Fabric.Application.props')" />
   <PropertyGroup Label="Globals">
-    <ProjectGuid>20b3092d-b0e2-43c5-bd51-fb2810f370bb</ProjectGuid>
+    <ProjectGuid>af9a54aa-1448-44d4-9803-3e94122c2095</ProjectGuid>
     <ProjectVersion>1.4</ProjectVersion>
   </PropertyGroup>
   <ItemGroup Label="ProjectConfigurations">
@@ -18,18 +18,21 @@
   <ItemGroup>
     <None Include="ApplicationPackageRoot\ApplicationManifest.xml" />
     <None Include="ApplicationParameters\Cloud.xml" />
+    <None Include="ApplicationParameters\Local.1Node.xml" />
     <None Include="ApplicationParameters\Local.5Node.xml" />
     <None Include="PublishProfiles\Cloud.xml" />
+    <None Include="PublishProfiles\Local.1Node.xml" />
     <None Include="PublishProfiles\Local.5Node.xml" />
     <None Include="Scripts\Deploy-FabricApplication.ps1" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="ApplicationParameters\Local.1Node.xml" />
+    <Content Include="ApplicationPackageRoot\NodeAppPkg\Code\app.js" />
+    <Content Include="ApplicationPackageRoot\NodeAppPkg\Code\installNode.cmd" />
+    <Content Include="ApplicationPackageRoot\NodeAppPkg\Code\launchApp.cmd" />
+    <Content Include="ApplicationPackageRoot\NodeAppPkg\Code\package.json" />
+    <Content Include="ApplicationPackageRoot\NodeAppPkg\Config\Settings.xml" />
+    <Content Include="ApplicationPackageRoot\NodeAppPkg\ServiceManifest.xml" />
     <Content Include="packages.config" />
-    <Content Include="PublishProfiles\Local.1Node.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\ConsoleRedirect\ConsoleRedirect.csproj" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />
   <PropertyGroup>

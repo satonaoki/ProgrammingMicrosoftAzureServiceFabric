@@ -1,12 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PublishProfile xmlns="http://schemas.microsoft.com/2015/05/fabrictools">
-  <!-- ClusterConnectionParameters allows you to specify the PowerShell parameters to use when connecting to the Service Fabric cluster.
-       Valid parameters are any that are accepted by the Connect-ServiceFabricCluster cmdlet.
+  <!-- ClusterConnectionParameters を使うと、Service Fabric クラスターに接続するときに使う PowerShell パラメーターを指定できます。
+       有効なパラメーターは、Connect-ServiceFabricCluster コマンドレットによって受け付けられるすべてのパラメーターです。
        
-       For a remote cluster, you would need to specify the appropriate parameters for that specific cluster.
-         For example: <ClusterConnectionParameters ConnectionEndpoint="mycluster.westus.cloudapp.azure.com:19000" />
+       リモート クラスターの場合、その特定のクラスターに該当するパラメーターを指定する必要があります。
+         例: <ClusterConnectionParameters ConnectionEndpoint="mycluster.westus.cloudapp.azure.com:19000" />
 
-       Example showing parameters for a cluster that uses certificate security:
+       証明書セキュリティを使うクラスターの場合のパラメーターを示す例です。
        <ClusterConnectionParameters ConnectionEndpoint="mycluster.westus.cloudapp.azure.com:19000"
                                     X509Credential="true"
                                     ServerCertThumbprint="0123456789012345678901234567890123456789"
@@ -15,14 +15,11 @@
                                     StoreLocation="CurrentUser"
                                     StoreName="My" />
 
-       Example showing parameters for a cluster that uses Azure Active Directory (AAD) security:
+       Azure Active Directory (AAD) セキュリティを使うクラスターの場合のパラメーターを示す例です。
        <ClusterConnectionParameters ConnectionEndpoint="mycluster.westus.cloudapp.azure.com:19000"
                                     AzureActiveDirectory="true"
                                     ServerCertThumbprint="0123456789012345678901234567890123456789" />
   -->
-  <ClusterConnectionParameters ConnectionEndpoint="" />
+  <ClusterConnectionParameters ConnectionEndpoint="fabric.japanwest.cloudapp.azure.com:19000" />
   <ApplicationParameterFile Path="..\ApplicationParameters\Cloud.xml" />
-  <UpgradeDeployment Mode="Monitored" Enabled="false">
-    <Parameters FailureAction="Rollback" Force="True" />
-  </UpgradeDeployment>
 </PublishProfile>
