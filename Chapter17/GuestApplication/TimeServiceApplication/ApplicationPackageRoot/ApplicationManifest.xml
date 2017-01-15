@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ApplicationManifest xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ApplicationTypeName="TimeServiceApplicationType" ApplicationTypeVersion="1.0.0" xmlns="http://schemas.microsoft.com/2011/01/fabric">
+   <Parameters>
+      <Parameter Name="InstanceCount" DefaultValue="1" />
+   </Parameters>
+   <ServiceManifestImport>
+      <ServiceManifestRef ServiceManifestName="WatchdogServicePkg" ServiceManifestVersion="1.0.0" />
+      <ConfigOverrides />
+   </ServiceManifestImport>
+   <ServiceManifestImport>
+      <ServiceManifestRef ServiceManifestName="TimeServicePkg" ServiceManifestVersion="1.0.0" />
+      <ConfigOverrides />
+      <Policies>
+         <RunAsPolicy CodePackageRef="Code" UserRef="SetupAdminUser" EntryPointType="Setup" />
+      </Policies>
+   </ServiceManifestImport>
+   <DefaultServices>
+      <Service Name="WatchdogService">
+         <StatelessService ServiceTypeName="WatchdogServiceType" InstanceCount="[InstanceCount]">
+            <SingletonPartition />
+            <ServiceCorrelations>
+               <ServiceCorrelation ServiceName="fabric:/TimeServiceApplication/TimeService" Scheme="Affinity" />
+            </ServiceCorrelations>
+         </StatelessService>
+      </Service>
+      <Service Name="TimeService">
+         <StatelessService ServiceTypeName="TimeServiceType" InstanceCount="[InstanceCount]">
+            <SingletonPartition />
+         </StatelessService>
+      </Service>
+   </DefaultServices>
+   <Principals>
+      <Users>
+         <User Name="SetupAdminUser">
+            <MemberOf>
+               <SystemGroup Name="Administrators" />
+            </MemberOf>
+         </User>
+      </Users>
+   </Principals>
+</ApplicationManifest>

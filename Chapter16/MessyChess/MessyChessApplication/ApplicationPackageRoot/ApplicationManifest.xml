@@ -1,0 +1,104 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ApplicationManifest xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ApplicationTypeName="MessyChessApplicationType" ApplicationTypeVersion="1.0.0" xmlns="http://schemas.microsoft.com/2011/01/fabric">
+   <Parameters>
+      <Parameter Name="PlayerActorService_PartitionCount" DefaultValue="10" />
+      <Parameter Name="PlayerActorService_MinReplicaSetSize" DefaultValue="2" />
+      <Parameter Name="PlayerActorService_TargetReplicaSetSize" DefaultValue="3" />
+      <Parameter Name="King_PartitionCount" DefaultValue="10" />
+      <Parameter Name="King_MinReplicaSetSize" DefaultValue="2" />
+      <Parameter Name="King_TargetReplicaSetSize" DefaultValue="3" />
+      <Parameter Name="AgentDispenserActorService_PartitionCount" DefaultValue="10" />
+      <Parameter Name="AgentDispenserActorService_MinReplicaSetSize" DefaultValue="2" />
+      <Parameter Name="AgentDispenserActorService_TargetReplicaSetSize" DefaultValue="3" />
+      <Parameter Name="ChessPiece_PartitionCount" DefaultValue="10" />
+      <Parameter Name="ChessPiece_MinReplicaSetSize" DefaultValue="2" />
+      <Parameter Name="ChessPiece_TargetReplicaSetSize" DefaultValue="3" />
+      <Parameter Name="ChessPieceActorService_PartitionCount" DefaultValue="10" />
+      <Parameter Name="ChessPieceActorService_MinReplicaSetSize" DefaultValue="2" />
+      <Parameter Name="ChessPieceActorService_TargetReplicaSetSize" DefaultValue="3" />
+      <Parameter Name="ChessboardObserver_MinReplicaSetSize" DefaultValue="2" />
+      <Parameter Name="ChessboardObserver_TargetReplicaSetSize" DefaultValue="3" />
+      <Parameter Name="Chessboard_MinReplicaSetSize" DefaultValue="2" />
+      <Parameter Name="Chessboard_PartitionCount" DefaultValue="1" />
+      <Parameter Name="Chessboard_TargetReplicaSetSize" DefaultValue="3" />
+   </Parameters>
+   <ServiceManifestImport>
+      <ServiceManifestRef ServiceManifestName="PlayerPkg" ServiceManifestVersion="1.0.0" />
+   </ServiceManifestImport>
+   <ServiceManifestImport>
+      <ServiceManifestRef ServiceManifestName="KingPkg" ServiceManifestVersion="1.0.0" />
+   </ServiceManifestImport>
+   <ServiceManifestImport>
+      <ServiceManifestRef ServiceManifestName="ChessPiecePkg" ServiceManifestVersion="1.0.0" />
+   </ServiceManifestImport>
+   <ServiceManifestImport>
+      <ServiceManifestRef ServiceManifestName="AgentPkg" ServiceManifestVersion="1.0.0" />
+   </ServiceManifestImport>
+   <ServiceManifestImport>
+      <ServiceManifestRef ServiceManifestName="AgentDispenserPkg" ServiceManifestVersion="1.0.0" />
+   </ServiceManifestImport>
+   <ServiceManifestImport>
+      <ServiceManifestRef ServiceManifestName="MessyChessWeb" ServiceManifestVersion="1.0.0" />
+   </ServiceManifestImport>
+   <ServiceManifestImport>
+      <ServiceManifestRef ServiceManifestName="ChessboardObserverPkg" ServiceManifestVersion="1.0.0" />
+      <ConfigOverrides />
+   </ServiceManifestImport>
+   <ServiceManifestImport>
+      <ServiceManifestRef ServiceManifestName="ChessboardPkg" ServiceManifestVersion="1.0.0" />
+      <ConfigOverrides />
+   </ServiceManifestImport>
+   <DefaultServices>
+      <Service Name="PlayerActorService" GeneratedIdRef="43306eeb-ba36-4bd3-aac6-6d5a945d5e85">
+         <StatefulService ServiceTypeName="PlayerActorServiceType" TargetReplicaSetSize="[PlayerActorService_TargetReplicaSetSize]" MinReplicaSetSize="[PlayerActorService_MinReplicaSetSize]">
+            <UniformInt64Partition PartitionCount="[PlayerActorService_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
+         </StatefulService>
+      </Service>
+      <Service Name="King" GeneratedIdRef="80a792cd-942c-4413-a0ea-37dd3f1a3e7e">
+         <StatefulService ServiceTypeName="KingType" TargetReplicaSetSize="[King_TargetReplicaSetSize]" MinReplicaSetSize="[King_MinReplicaSetSize]">
+            <UniformInt64Partition PartitionCount="[King_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
+         </StatefulService>
+      </Service>
+      <Service Name="AgentDispenserActorService" GeneratedIdRef="f7ddb55d-84b1-4561-9a5f-2167357bd1b0">
+         <StatefulService ServiceTypeName="AgentDispenserActorServiceType" TargetReplicaSetSize="[AgentDispenserActorService_TargetReplicaSetSize]" MinReplicaSetSize="[AgentDispenserActorService_MinReplicaSetSize]">
+            <UniformInt64Partition PartitionCount="[AgentDispenserActorService_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
+         </StatefulService>
+      </Service>
+      <Service Name="MessyChessWebService">
+         <StatelessService ServiceTypeName="MessyChessWebType">
+            <SingletonPartition />
+         </StatelessService>
+      </Service>
+      <Service Name="ChessboardObserver">
+         <StatefulService ServiceTypeName="ChessboardObserverType" TargetReplicaSetSize="[ChessboardObserver_TargetReplicaSetSize]" MinReplicaSetSize="[ChessboardObserver_MinReplicaSetSize]">
+            <SingletonPartition />
+         </StatefulService>
+      </Service>
+      <Service Name="Chessboard">
+         <StatefulService ServiceTypeName="ChessboardType" TargetReplicaSetSize="[Chessboard_TargetReplicaSetSize]" MinReplicaSetSize="[Chessboard_MinReplicaSetSize]">
+            <NamedPartition>
+               <Partition Name="3" />
+               <Partition Name="4" />
+               <Partition Name="9" />
+               <Partition Name="10" />
+               <Partition Name="13" />
+               <Partition Name="14" />
+               <Partition Name="15" />
+               <Partition Name="16" />
+               <Partition Name="17" />
+               <Partition Name="18" />
+               <Partition Name="19" />
+               <Partition Name="20" />
+               <Partition Name="21" />
+               <Partition Name="22" />
+               <Partition Name="23" />
+               <Partition Name="24" />
+               <Partition Name="27" />
+               <Partition Name="28" />
+               <Partition Name="33" />
+               <Partition Name="34" />
+            </NamedPartition>
+         </StatefulService>
+      </Service>
+   </DefaultServices>
+</ApplicationManifest>
