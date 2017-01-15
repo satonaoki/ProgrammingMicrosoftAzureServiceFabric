@@ -1,11 +1,11 @@
-﻿using Microsoft.ServiceFabric.Actors;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.Tracing;
 using System.Fabric;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Actors.Runtime;
 
 namespace Game
 {
@@ -18,7 +18,7 @@ namespace Game
         {
             // A workaround for the problem where ETW activities do not get tracked until Tasks infrastructure is initialized.
             // This problem will be fixed in .NET Framework 4.6.2.
-            Task.Run(() => { }).Wait();
+            Task.Run(() => { });
         }
 
         // Instance constructor is private to enforce singleton semantics
@@ -64,41 +64,25 @@ namespace Game
         }
 
         [NonEvent]
-        public void ActorMessage(StatelessActor actor, string message, params object[] args)
+        public void ActorMessage(Actor actor, string message, params object[] args)
         {
-            if (this.IsEnabled())
+            if (this.IsEnabled()
+                && actor.Id != null
+                && actor.ActorService != null
+                && actor.ActorService.Context != null
+                && actor.ActorService.Context.CodePackageActivationContext != null)
             {
                 string finalMessage = string.Format(message, args);
                 ActorMessage(
                     actor.GetType().ToString(),
                     actor.Id.ToString(),
-                    actor.ActorService.ServiceInitializationParameters.CodePackageActivationContext.ApplicationTypeName,
-                    actor.ActorService.ServiceInitializationParameters.CodePackageActivationContext.ApplicationName,
-                    actor.ActorService.ServiceInitializationParameters.ServiceTypeName,
-                    actor.ActorService.ServiceInitializationParameters.ServiceName.ToString(),
-                    actor.ActorService.ServiceInitializationParameters.PartitionId,
-                    actor.ActorService.ServiceInitializationParameters.InstanceId,
-                    FabricRuntime.GetNodeContext().NodeName,
-                    finalMessage);
-            }
-        }
-
-        [NonEvent]
-        public void ActorMessage(StatefulActorBase actor, string message, params object[] args)
-        {
-            if (this.IsEnabled())
-            {
-                string finalMessage = string.Format(message, args);
-                ActorMessage(
-                    actor.GetType().ToString(),
-                    actor.Id.ToString(),
-                    actor.ActorService.ServiceInitializationParameters.CodePackageActivationContext.ApplicationTypeName,
-                    actor.ActorService.ServiceInitializationParameters.CodePackageActivationContext.ApplicationName,
-                    actor.ActorService.ServiceInitializationParameters.ServiceTypeName,
-                    actor.ActorService.ServiceInitializationParameters.ServiceName.ToString(),
-                    actor.ActorService.ServiceInitializationParameters.PartitionId,
-                    actor.ActorService.ServiceInitializationParameters.ReplicaId,
-                    FabricRuntime.GetNodeContext().NodeName,
+                    actor.ActorService.Context.CodePackageActivationContext.ApplicationTypeName,
+                    actor.ActorService.Context.CodePackageActivationContext.ApplicationName,
+                    actor.ActorService.Context.ServiceTypeName,
+                    actor.ActorService.Context.ServiceName.ToString(),
+                    actor.ActorService.Context.PartitionId,
+                    actor.ActorService.Context.ReplicaId,
+                    actor.ActorService.Context.NodeContext.NodeName,
                     finalMessage);
             }
         }

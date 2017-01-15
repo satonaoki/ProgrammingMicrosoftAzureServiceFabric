@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Game.Interfaces")]
+[assembly: AssemblyTitle("TicTacToeTests")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Game.Interfaces")]
+[assembly: AssemblyProduct("TicTacToeTests")]
 [assembly: AssemblyCopyright("Copyright ©  2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("0c63ebc3-cc7e-4058-b562-ba3b147b8f0c")]
+[assembly: Guid("4cb9767f-1d71-449f-9e22-6ff5a002cc09")]
 
 // Version information for an assembly consists of the following four values:
 //

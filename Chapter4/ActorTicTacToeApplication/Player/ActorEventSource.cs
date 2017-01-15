@@ -1,11 +1,11 @@
-﻿using Microsoft.ServiceFabric.Actors;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.Tracing;
 using System.Fabric;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Actors.Runtime;
 
 namespace Player
 {
@@ -18,7 +18,7 @@ namespace Player
         {
             // A workaround for the problem where ETW activities do not get tracked until Tasks infrastructure is initialized.
             // This problem will be fixed in .NET Framework 4.6.2.
-            Task.Run(() => { }).Wait();
+            Task.Run(() => { });
         }
 
         // Instance constructor is private to enforce singleton semantics
@@ -64,41 +64,25 @@ namespace Player
         }
 
         [NonEvent]
-        public void ActorMessage(StatelessActor actor, string message, params object[] args)
+        public void ActorMessage(Actor actor, string message, params object[] args)
         {
-            if (this.IsEnabled())
+            if (this.IsEnabled()
+                && actor.Id != null
+                && actor.ActorService != null
+                && actor.ActorService.Context != null
+                && actor.ActorService.Context.CodePackageActivationContext != null)
             {
                 string finalMessage = string.Format(message, args);
                 ActorMessage(
                     actor.GetType().ToString(),
                     actor.Id.ToString(),
-                    actor.ActorService.ServiceInitializationParameters.CodePackageActivationContext.ApplicationTypeName,
-                    actor.ActorService.ServiceInitializationParameters.CodePackageActivationContext.ApplicationName,
-                    actor.ActorService.ServiceInitializationParameters.ServiceTypeName,
-                    actor.ActorService.ServiceInitializationParameters.ServiceName.ToString(),
-                    actor.ActorService.ServiceInitializationParameters.PartitionId,
-                    actor.ActorService.ServiceInitializationParameters.InstanceId,
-                    FabricRuntime.GetNodeContext().NodeName,
-                    finalMessage);
-            }
-        }
-
-        [NonEvent]
-        public void ActorMessage(StatefulActorBase actor, string message, params object[] args)
-        {
-            if (this.IsEnabled())
-            {
-                string finalMessage = string.Format(message, args);
-                ActorMessage(
-                    actor.GetType().ToString(),
-                    actor.Id.ToString(),
-                    actor.ActorService.ServiceInitializationParameters.CodePackageActivationContext.ApplicationTypeName,
-                    actor.ActorService.ServiceInitializationParameters.CodePackageActivationContext.ApplicationName,
-                    actor.ActorService.ServiceInitializationParameters.ServiceTypeName,
-                    actor.ActorService.ServiceInitializationParameters.ServiceName.ToString(),
-                    actor.ActorService.ServiceInitializationParameters.PartitionId,
-                    actor.ActorService.ServiceInitializationParameters.ReplicaId,
-                    FabricRuntime.GetNodeContext().NodeName,
+                    actor.ActorService.Context.CodePackageActivationContext.ApplicationTypeName,
+                    actor.ActorService.Context.CodePackageActivationContext.ApplicationName,
+                    actor.ActorService.Context.ServiceTypeName,
+                    actor.ActorService.Context.ServiceName.ToString(),
+                    actor.ActorService.Context.PartitionId,
+                    actor.ActorService.Context.ReplicaId,
+                    actor.ActorService.Context.NodeContext.NodeName,
                     finalMessage);
             }
         }
@@ -110,9 +94,9 @@ namespace Player
         [Event(ActorMessageEventId, Level = EventLevel.Informational, Message = "{9}")]
         private
 #if UNSAFE
-        unsafe
+            unsafe
 #endif
-        void ActorMessage(
+            void ActorMessage(
             string actorType,
             string actorId,
             string applicationTypeName,
@@ -138,23 +122,23 @@ namespace Player
                     nodeName,
                     message);
 #else
-            const int numArgs = 10;
-            fixed (char* pActorType = actorType, pActorId = actorId, pApplicationTypeName = applicationTypeName, pApplicationName = applicationName, pServiceTypeName = serviceTypeName, pServiceName = serviceName, pNodeName = nodeName, pMessage = message)
-            {
-                EventData* eventData = stackalloc EventData[numArgs];
-                eventData[0] = new EventData { DataPointer = (IntPtr) pActorType, Size = SizeInBytes(actorType) };
-                eventData[1] = new EventData { DataPointer = (IntPtr) pActorId, Size = SizeInBytes(actorId) };
-                eventData[2] = new EventData { DataPointer = (IntPtr) pApplicationTypeName, Size = SizeInBytes(applicationTypeName) };
-                eventData[3] = new EventData { DataPointer = (IntPtr) pApplicationName, Size = SizeInBytes(applicationName) };
-                eventData[4] = new EventData { DataPointer = (IntPtr) pServiceTypeName, Size = SizeInBytes(serviceTypeName) };
-                eventData[5] = new EventData { DataPointer = (IntPtr) pServiceName, Size = SizeInBytes(serviceName) };
-                eventData[6] = new EventData { DataPointer = (IntPtr) (&partitionId), Size = sizeof(Guid) };
-                eventData[7] = new EventData { DataPointer = (IntPtr) (&replicaOrInstanceId), Size = sizeof(long) };
-                eventData[8] = new EventData { DataPointer = (IntPtr) pNodeName, Size = SizeInBytes(nodeName) };
-                eventData[9] = new EventData { DataPointer = (IntPtr) pMessage, Size = SizeInBytes(message) };
+                const int numArgs = 10;
+                fixed (char* pActorType = actorType, pActorId = actorId, pApplicationTypeName = applicationTypeName, pApplicationName = applicationName, pServiceTypeName = serviceTypeName, pServiceName = serviceName, pNodeName = nodeName, pMessage = message)
+                {
+                    EventData* eventData = stackalloc EventData[numArgs];
+                    eventData[0] = new EventData { DataPointer = (IntPtr) pActorType, Size = SizeInBytes(actorType) };
+                    eventData[1] = new EventData { DataPointer = (IntPtr) pActorId, Size = SizeInBytes(actorId) };
+                    eventData[2] = new EventData { DataPointer = (IntPtr) pApplicationTypeName, Size = SizeInBytes(applicationTypeName) };
+                    eventData[3] = new EventData { DataPointer = (IntPtr) pApplicationName, Size = SizeInBytes(applicationName) };
+                    eventData[4] = new EventData { DataPointer = (IntPtr) pServiceTypeName, Size = SizeInBytes(serviceTypeName) };
+                    eventData[5] = new EventData { DataPointer = (IntPtr) pServiceName, Size = SizeInBytes(serviceName) };
+                    eventData[6] = new EventData { DataPointer = (IntPtr) (&partitionId), Size = sizeof(Guid) };
+                    eventData[7] = new EventData { DataPointer = (IntPtr) (&replicaOrInstanceId), Size = sizeof(long) };
+                    eventData[8] = new EventData { DataPointer = (IntPtr) pNodeName, Size = SizeInBytes(nodeName) };
+                    eventData[9] = new EventData { DataPointer = (IntPtr) pMessage, Size = SizeInBytes(message) };
 
-                WriteEventCore(ActorMessageEventId, numArgs, eventData);
-            }
+                    WriteEventCore(ActorMessageEventId, numArgs, eventData);
+                }
 #endif
         }
 
@@ -168,17 +152,17 @@ namespace Player
 
         #region Private Methods
 #if UNSAFE
-        private int SizeInBytes(string s)
-        {
-            if (s == null)
+            private int SizeInBytes(string s)
             {
-                return 0;
+                if (s == null)
+                {
+                    return 0;
+                }
+                else
+                {
+                    return (s.Length + 1) * sizeof(char);
+                }
             }
-            else
-            {
-                return (s.Length + 1) * sizeof(char);
-            }
-        }
 #endif
         #endregion
     }

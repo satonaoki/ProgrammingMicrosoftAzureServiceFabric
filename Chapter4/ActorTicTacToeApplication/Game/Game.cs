@@ -1,26 +1,36 @@
-﻿using Game.Interfaces;
-using Microsoft.ServiceFabric.Actors;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
-using System.Runtime.Serialization;
-using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Actors.Runtime;
+using Game.Interfaces;
+using System.Runtime.Serialization;
+using Microsoft.ServiceFabric.Data;
+using System.ComponentModel;
+using Microsoft.ServiceFabric.Actors;
 
 namespace Game
 {
-    [VolatileActorStateProvider]
-    internal class Game : StatefulActor<Game.ActorState>, IGame
+    /// <remarks>
+    /// This class represents an actor.
+    /// Every ActorID maps to an instance of this class.
+    /// The StatePersistence attribute determines persistence and replication of actor state:
+    ///  - Persisted: State is written to disk and replicated.
+    ///  - Volatile: State is kept in memory only and replicated.
+    ///  - None: State is kept in memory only and not replicated.
+    /// </remarks>
+    [StatePersistence(StatePersistence.Persisted)]
+    internal class Game : Actor, IGame
     {
-        /// <summary>
-        /// This class contains each actor's replicated state.
-        /// Each instance of this class is serialized and replicated every time an actor's state is saved.
-        /// For more information, see http://aka.ms/servicefabricactorsstateserialization
-        /// </summary>
+        private static readonly string STATE_KEY = "MyState";
+
+        public Game(ActorService actorService, ActorId actorId) : base(actorService, actorId)
+        {
+
+        }
+
         [DataContract]
         public class ActorState
-
         {
             [DataMember]
             public int[] Board;
@@ -36,12 +46,14 @@ namespace Game
 
         /// <summary>
         /// This method is called whenever an actor is activated.
+        /// An actor is activated the first time any of its methods are invoked.
         /// </summary>
-        protected override Task OnActivateAsync()
+        protected override async Task OnActivateAsync()
         {
-            if (this.State == null)
+            ConditionalValue<ActorState> state = await this.StateManager.TryGetStateAsync<ActorState>(STATE_KEY);
+            if (!state.HasValue)
             {
-                this.State = new ActorState()
+                var actorState = new ActorState()
                 {
                     Board = new int[9],
                     Winner = "",
@@ -49,70 +61,92 @@ namespace Game
                     NextPlayerIndex = 0,
                     NumberOfMoves = 0
                 };
+                await this.StateManager.SetStateAsync<ActorState>(STATE_KEY, actorState);
+                return;
             }
-            return Task.FromResult(true);
         }
-        public Task<bool> JoinGameAsync(long playerId, string playerName)
+        private async Task<ActorState> GetActorState()
         {
-            if (this.State.Players.Count >= 2
-                || this.State.Players.FirstOrDefault(p => p.Item2 == playerName) != null)
-                return Task.FromResult<bool>(false);
-            this.State.Players.Add(new Tuple<long, string>(playerId, playerName));
-            return Task.FromResult<bool>(true);
+            ConditionalValue<ActorState> stateValue = await this.StateManager.TryGetStateAsync<ActorState>(STATE_KEY);
+            return await Task.FromResult<ActorState>(stateValue.Value);
         }
-        [Readonly]
-        public Task<int[]> GetGameBoardAsync()
+        private async Task SetActorState(ActorState state)
         {
-            return Task.FromResult<int[]>(this.State.Board);
+            await this.StateManager.AddOrUpdateStateAsync<ActorState>(STATE_KEY, state, (ke, v) => state);
+            return;
         }
-        [Readonly]
-        public Task<string> GetWinnerAsync()
-        {
-            return Task.FromResult<string>(this.State.Winner);
-        }
-        public Task<bool> MakeMoveAsync(long playerId, int x, int y)
-        {
-            if (x < 0 || x > 2 || y < 0 || y > 2
-                || this.State.Players.Count != 2
-                || this.State.NumberOfMoves >= 9
-                || this.State.Winner != "")
-                return Task.FromResult<bool>(false);
 
-            int index = this.State.Players.FindIndex(p => p.Item1 == playerId);
-            if (index == this.State.NextPlayerIndex)
+        public async Task<bool> JoinGameAsync(long playerId, string playerName)
+        {
+            var state = await GetActorState();
+            if (state.Players.Count >= 2 || state.Players.FirstOrDefault(p => p.Item2 == playerName) != null)
             {
-                if (this.State.Board[y * 3 + x] == 0)
+                return await Task.FromResult<bool>(false);
+            }
+
+            state.Players.Add(new Tuple<long, string>(playerId, playerName));
+            await SetActorState(state);
+            return await Task.FromResult<bool>(true);
+        }
+
+        [ReadOnly(true)]
+        public async Task<int[]> GetGameBoardAsync()
+        {
+            var state = await GetActorState();
+            return await Task.FromResult<int[]>(state.Board);
+        }
+        [ReadOnly(true)]
+        public async Task<string> GetWinnerAsync()
+        {
+            var state = await GetActorState();
+            return await Task.FromResult<string>(state.Winner);
+        }
+
+        public async Task<bool> MakeMoveAsync(long playerId, int x, int y)
+        {
+            var state = await GetActorState();
+            if (x < 0 || x > 2 || y < 0 || y > 2
+                || state.Players.Count != 2
+                || state.NumberOfMoves >= 9
+                || state.Winner != "")
+                return await Task.FromResult<bool>(false);
+
+            int index = state.Players.FindIndex(p => p.Item1 == playerId);
+            if (index == state.NextPlayerIndex)
+            {
+                if (state.Board[y * 3 + x] == 0)
                 {
                     int piece = index * 2 - 1;
-                    this.State.Board[y * 3 + x] = piece;
-                    this.State.NumberOfMoves++;
-
-                    if (HasWon(piece * 3))
-                        this.State.Winner = this.State.Players[index].Item2 + " (" +
-                                           (piece == -1 ? "X" : "O") + ")";
-                    else if (this.State.Winner == "" && this.State.NumberOfMoves >= 9)
-
-                        this.State.Winner = "TIE";
-
-                    this.State.NextPlayerIndex = (this.State.NextPlayerIndex + 1) % 2;
-                    return Task.FromResult<bool>(true);
+                    state.Board[y * 3 + x] = piece;
+                    state.NumberOfMoves++;
+                    if (await HasWonAsync(piece * 3))
+                        state.Winner = state.Players[index].Item2 + " (" +
+                            (piece == -1 ? "X" : "0") + ")";
+                    else if (state.Winner == "" && state.NumberOfMoves >= 9)
+                        state.Winner = "TIE";
+                    state.NextPlayerIndex = (state.NextPlayerIndex + 1) % 2;
+                    await SetActorState(state);
+                    return await Task.FromResult<bool>(true);
                 }
                 else
-                    return Task.FromResult<bool>(false);
+                    return await Task.FromResult<bool>(false);
             }
             else
-                return Task.FromResult<bool>(false);
+                return await Task.FromResult<bool>(false);
         }
-        private bool HasWon(int sum)
+
+        private async Task<bool> HasWonAsync(int sum)
         {
-            return this.State.Board[0] + this.State.Board[1] + this.State.Board[2] == sum
-                || this.State.Board[3] + this.State.Board[4] + this.State.Board[5] == sum
-                || this.State.Board[6] + this.State.Board[7] + this.State.Board[8] == sum
-                || this.State.Board[0] + this.State.Board[3] + this.State.Board[6] == sum
-                || this.State.Board[1] + this.State.Board[4] + this.State.Board[7] == sum
-                || this.State.Board[2] + this.State.Board[5] + this.State.Board[8] == sum
-                || this.State.Board[0] + this.State.Board[4] + this.State.Board[8] == sum
-                || this.State.Board[2] + this.State.Board[4] + this.State.Board[6] == sum;
+            var state = await GetActorState();
+            bool result =  state.Board[0] + state.Board[1] + state.Board[2] == sum
+                || state.Board[3] + state.Board[4] + state.Board[5] == sum
+                || state.Board[6] + state.Board[7] + state.Board[8] == sum
+                || state.Board[0] + state.Board[3] + state.Board[6] == sum
+                || state.Board[1] + state.Board[4] + state.Board[7] == sum
+                || state.Board[2] + state.Board[5] + state.Board[8] == sum
+                || state.Board[0] + state.Board[4] + state.Board[8] == sum
+                || state.Board[2] + state.Board[4] + state.Board[6] == sum;
+            return await Task.FromResult<bool>(result);
         }
     }
 }
