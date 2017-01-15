@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ServiceManifest Name="WebApi1Pkg"
+<ServiceManifest Name="WebCalculatorServicePkg"
                  Version="1.0.0"
                  xmlns="http://schemas.microsoft.com/2011/01/fabric"
                  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
@@ -7,15 +7,14 @@
   <ServiceTypes>
     <!-- これはご使用の ServiceType の名前です。
          この名前は、Program.cs の RegisterServiceType 呼び出しで使用される文字列と一致しなければなりません。-->
-    <StatelessServiceType ServiceTypeName="WebApi1Type" />
+    <StatelessServiceType ServiceTypeName="WebCalculatorServiceType" />
   </ServiceTypes>
 
   <!-- コード パッケージはサービス実行可能ファイルです。-->
   <CodePackage Name="Code" Version="1.0.0">
     <EntryPoint>
       <ExeHost>
-        <Program>WebApi1.exe</Program>
-        <WorkingFolder>CodePackage</WorkingFolder>
+        <Program>WebCalculatorService.exe</Program>
       </ExeHost>
     </EntryPoint>
   </CodePackage>
@@ -29,7 +28,7 @@
       <!-- このエンドポイントは、リッスンするポートを取得するために通信リスナーによって
            使用されます。使用しているサービスがパーティション化されている場合、
            このポートはコード内に配置されている別のパーティションのレプリカと共有されます。-->
-      <Endpoint Protocol="http" Name="ServiceEndpoint" Type="Input" Port="8834" />
+      <Endpoint Name="ServiceEndpoint" Protocol="http" Port="8281" Type="Input"/>
     </Endpoints>
   </Resources>
 </ServiceManifest>

@@ -22,11 +22,15 @@ namespace WebCalculatorService
         /// このサービス レプリカがクライアントやユーザーの要求を処理するために、リスナー (TCP、HTTP など) を作成するようオーバーライドします (省略可能)。
         /// </summary>
         /// <returns>リスナーのコレクション。</returns>
-        protected override IEnumerable<ServiceInstanceListener> CreateServiceInstanceListeners()
+        protected override
+        IEnumerable<ServiceInstanceListener> CreateServiceInstanceListeners()
         {
-            return new ServiceInstanceListener[0];
+            return new[]
+            {
+                new ServiceInstanceListener(context => new OwinCommunicationListener(
+                new Startup(), context, ServiceEventSource.Current))
+            };
         }
-
         /// <summary>
         /// これは、サービス インスタンスのメイン エントリ ポイントです。
         /// </summary>
