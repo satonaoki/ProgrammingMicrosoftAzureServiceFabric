@@ -1,0 +1,46 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{A07B5EB6-E848-4116-A8D0-A826331D98C6}") = "CalculatorApplication3", "CalculatorApplication3\CalculatorApplication3.sfproj", "{EE902812-1A43-4980-84DF-4383CB4FCF2A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CalculatorService", "CalculatorService\CalculatorService.csproj", "{C3386D57-2C25-4F57-99D8-7BB496F09E3E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CalculatorClient", "CalculatorClient\CalculatorClient.csproj", "{40D102E4-4656-4E0B-944C-A27593769625}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EE902812-1A43-4980-84DF-4383CB4FCF2A}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{EE902812-1A43-4980-84DF-4383CB4FCF2A}.Debug|x64.ActiveCfg = Debug|x64
+		{EE902812-1A43-4980-84DF-4383CB4FCF2A}.Debug|x64.Build.0 = Debug|x64
+		{EE902812-1A43-4980-84DF-4383CB4FCF2A}.Debug|x64.Deploy.0 = Debug|x64
+		{EE902812-1A43-4980-84DF-4383CB4FCF2A}.Release|Any CPU.ActiveCfg = Release|x64
+		{EE902812-1A43-4980-84DF-4383CB4FCF2A}.Release|x64.ActiveCfg = Release|x64
+		{EE902812-1A43-4980-84DF-4383CB4FCF2A}.Release|x64.Build.0 = Release|x64
+		{EE902812-1A43-4980-84DF-4383CB4FCF2A}.Release|x64.Deploy.0 = Release|x64
+		{C3386D57-2C25-4F57-99D8-7BB496F09E3E}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{C3386D57-2C25-4F57-99D8-7BB496F09E3E}.Debug|x64.ActiveCfg = Debug|x64
+		{C3386D57-2C25-4F57-99D8-7BB496F09E3E}.Debug|x64.Build.0 = Debug|x64
+		{C3386D57-2C25-4F57-99D8-7BB496F09E3E}.Release|Any CPU.ActiveCfg = Release|x64
+		{C3386D57-2C25-4F57-99D8-7BB496F09E3E}.Release|x64.ActiveCfg = Release|x64
+		{C3386D57-2C25-4F57-99D8-7BB496F09E3E}.Release|x64.Build.0 = Release|x64
+		{40D102E4-4656-4E0B-944C-A27593769625}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{40D102E4-4656-4E0B-944C-A27593769625}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{40D102E4-4656-4E0B-944C-A27593769625}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{40D102E4-4656-4E0B-944C-A27593769625}.Debug|x64.Build.0 = Debug|Any CPU
+		{40D102E4-4656-4E0B-944C-A27593769625}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{40D102E4-4656-4E0B-944C-A27593769625}.Release|Any CPU.Build.0 = Release|Any CPU
+		{40D102E4-4656-4E0B-944C-A27593769625}.Release|x64.ActiveCfg = Release|Any CPU
+		{40D102E4-4656-4E0B-944C-A27593769625}.Release|x64.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
