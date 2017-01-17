@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Settings xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.microsoft.com/2011/01/fabric">
-  <!-- This is used by the StateManager's replicator. -->
+  <!-- これは StateManager のレプリケーターにより使用されます。-->
   <Section Name="ReplicatorConfig">
     <Parameter Name="ReplicatorEndpoint" Value="ReplicatorEndpoint" />
   </Section>
-  <!-- This is used for securing StateManager's replication traffic. -->
+  <!-- これは StateManager のレプリケーション トラフィックをセキュリティで保護するために使用されます。-->
   <Section Name="ReplicatorSecurityConfig" />
 
-  <!-- Add your custom configuration sections and parameters here. -->
+  <!-- ここで、カスタム構成セクションとパラメーターを追加します。-->
   <!--
   <Section Name="MyConfigSection">
     <Parameter Name="MyParameter" Value="Value1" />

@@ -1,13 +1,11 @@
-﻿using Microsoft.Azure.Devices.Client;
-using Newtonsoft.Json;
-using System.Text;
-using System.Threading;
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-
+using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Azure.Devices.Client;
+using Newtonsoft.Json;
+using System.Threading;
 
 namespace SimulatedGateway
 {
@@ -15,11 +13,16 @@ namespace SimulatedGateway
     {
         static void Main(string[] args)
         {
-            string iotHostName = "iote2e.azure-devices.net";
+            string iotHostName = "***.azure-devices.net";
             string deviceId = "DemoDevice";
-            string deviceKey = "m9SYbvBW0N+aXSbnhBgE5627vq1ix5NvU9Ri0/RqJ5Q=";
+            string deviceKey = "***";
+
             Random rand = new Random();
-            var deviceClient = DeviceClient.Create(iotHostName, new DeviceAuthenticationWithRegistrySymmetricKey(deviceId, deviceKey));
+            var deviceClient = DeviceClient.Create(
+                iotHostName,
+                new DeviceAuthenticationWithRegistrySymmetricKey(deviceId, deviceKey)
+            );
+
             while (true)
             {
                 double temperature = rand.NextDouble() * 100;
@@ -28,7 +31,8 @@ namespace SimulatedGateway
                     deviceId = deviceId,
                     temperature = temperature
                 };
-                var message = new Message(Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(temperatureData)));
+                var message = new Message(Encoding.ASCII.GetBytes(
+                    JsonConvert.SerializeObject(temperatureData)));
                 deviceClient.SendEventAsync(message).Wait();
                 Console.Write(".");
                 Thread.Sleep(1000);

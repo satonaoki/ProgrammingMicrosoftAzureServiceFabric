@@ -5,12 +5,12 @@
                  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <ServiceTypes>
-    <!-- This is the name of your ServiceType. 
-         This name must match the string used in RegisterServiceType call in Program.cs. -->
+    <!-- これはご使用の ServiceType の名前です。
+         この名前は、Program.cs の RegisterServiceType 呼び出しで使用される文字列と一致しなければなりません。-->
     <StatefulServiceType ServiceTypeName="SensorDataProcessorType" HasPersistedState="true" />
   </ServiceTypes>
 
-  <!-- Code package is your service executable. -->
+  <!-- コード パッケージはサービス実行可能ファイルです。-->
   <CodePackage Name="Code" Version="1.0.0">
     <EntryPoint>
       <ExeHost>
@@ -19,20 +19,20 @@
     </EntryPoint>
   </CodePackage>
 
-  <!-- Config package is the contents of the Config directoy under PackageRoot that contains an 
-       independently-updateable and versioned set of custom configuration settings for your service. -->
+  <!-- Config パッケージは PackageRoot の下にある Config ディレクトリの内容です。ここには、単独で
+       更新可能でバージョン管理されている、サービス用のカスタム構成設定のセットが含まれています。-->
   <ConfigPackage Name="Config" Version="1.0.0" />
 
   <Resources>
     <Endpoints>
-      <!-- This endpoint is used by the communication listener to obtain the port on which to 
-           listen. Please note that if your service is partitioned, this port is shared with 
-           replicas of different partitions that are placed in your code. -->
+      <!-- このエンドポイントは、リッスンするポートを取得するために通信リスナーによって
+           使用されます。使用しているサービスがパーティション化されている場合、
+           このポートはコード内に配置されている別のパーティションのレプリカと共有されます。-->
       <Endpoint Name="ServiceEndpoint" />
 
-      <!-- This endpoint is used by the replicator for replicating the state of your service.
-           This endpoint is configured through a ReplicatorSettings config section in the Settings.xml
-           file under the ConfigPackage. -->
+      <!-- このエンドポイントは、使用しているサービスの状態をレプリケートするために
+           レプリケーターが使用します。このエンドポイントは、ConfigPackage の下にある Settings.xml ファイルの
+           ReplicatorSettings 構成セクションで構成されています。-->
       <Endpoint Name="ReplicatorEndpoint" />
     </Endpoints>
   </Resources>

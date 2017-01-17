@@ -1,30 +1,38 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ApplicationManifest xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ApplicationTypeName="SensorDataProcessorApplicationType" ApplicationTypeVersion="1.0.0" xmlns="http://schemas.microsoft.com/2011/01/fabric">
-   <Parameters>
-      <Parameter Name="IoTHubPartitionMapActorService_PartitionCount" DefaultValue="10" />
-      <Parameter Name="IoTHubPartitionMapActorService_MinReplicaSetSize" DefaultValue="2" />
-      <Parameter Name="IoTHubPartitionMapActorService_TargetReplicaSetSize" DefaultValue="3" />
-      <Parameter Name="SensorDataProcessor_MinReplicaSetSize" DefaultValue="2" />
-      <Parameter Name="SensorDataProcessor_PartitionCount" DefaultValue="1" />
-      <Parameter Name="SensorDataProcessor_TargetReplicaSetSize" DefaultValue="3" />
-   </Parameters>
-   <ServiceManifestImport>
-      <ServiceManifestRef ServiceManifestName="IoTHubParitionMapPkg" ServiceManifestVersion="1.0.0" />
-   </ServiceManifestImport>
-   <ServiceManifestImport>
-      <ServiceManifestRef ServiceManifestName="SensorDataProcessorPkg" ServiceManifestVersion="1.0.0" />
-      <ConfigOverrides />
-   </ServiceManifestImport>
-   <DefaultServices>
-      <Service Name="IoTHubPartitionMapActorService" GeneratedIdRef="4c8ed1f0-44c5-4849-959c-5a754ce2c65f">
-         <StatefulService ServiceTypeName="IoTHubParitionMapActorServiceType" TargetReplicaSetSize="3" MinReplicaSetSize="2">
-            <UniformInt64Partition PartitionCount="[IoTHubPartitionMapActorService_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
-         </StatefulService>
-      </Service>
-      <Service Name="SensorDataProcessor">
-         <StatefulService ServiceTypeName="SensorDataProcessorType" TargetReplicaSetSize="3" MinReplicaSetSize="2">
-            <UniformInt64Partition PartitionCount="32" LowKey="0" HighKey="31" />
-         </StatefulService>
-      </Service>
-   </DefaultServices>
+  <Parameters>
+    <Parameter Name="SensorDataProcessor_MinReplicaSetSize" DefaultValue="3" />
+    <Parameter Name="SensorDataProcessor_PartitionCount" DefaultValue="1" />
+    <Parameter Name="SensorDataProcessor_TargetReplicaSetSize" DefaultValue="3" />
+    <Parameter Name="IoTHubPartitionMapActorService_PartitionCount" DefaultValue="10" />
+    <Parameter Name="IoTHubPartitionMapActorService_MinReplicaSetSize" DefaultValue="3" />
+    <Parameter Name="IoTHubPartitionMapActorService_TargetReplicaSetSize" DefaultValue="3" />
+  </Parameters>
+  <!-- ServicePackage から ServiceManifest をインポートします。ServiceManifestName と ServiceManifestVersion は、
+       ServiceManifest.xml ファイルで定義されている ServiceManifest 要素の [Name] 属性と [Version] 属性と 
+       一致しなければなりません。-->
+  <ServiceManifestImport>
+    <ServiceManifestRef ServiceManifestName="IoTHubPartitionMapPkg" ServiceManifestVersion="1.0.0" />
+  </ServiceManifestImport>
+  <ServiceManifestImport>
+    <ServiceManifestRef ServiceManifestName="SensorDataProcessorPkg" ServiceManifestVersion="1.0.0" />
+    <ConfigOverrides />
+  </ServiceManifestImport>
+  <DefaultServices>
+    <!-- 以下のセクションでは、このアプリケーション型のインスタンスが 
+         作成されるときにサービス型のインスタンスが作成されます。また、ServiceFabric PowerShell
+         モジュールを使用してサービス型の 1 つ以上のインスタンスを作成することもできます。
+         
+         以下の ServiceTypeName 属性は、インポートされた ServiceManifest.xml ファイル内で定義されている名前と一致していなければなりません。-->
+    <Service Name="SensorDataProcessor">
+      <StatefulService ServiceTypeName="SensorDataProcessorType" TargetReplicaSetSize="3" MinReplicaSetSize="3">
+        <UniformInt64Partition PartitionCount="32" LowKey="0" HighKey="31" />
+      </StatefulService>
+    </Service>
+    <Service Name="IoTHubPartitionMapActorService" GeneratedIdRef="abdf3160-130b-4c75-935b-a11d928b8cd0|Persisted">
+      <StatefulService ServiceTypeName="IoTHubPartitionMapActorServiceType" TargetReplicaSetSize="[IoTHubPartitionMapActorService_TargetReplicaSetSize]" MinReplicaSetSize="[IoTHubPartitionMapActorService_MinReplicaSetSize]">
+        <UniformInt64Partition PartitionCount="[IoTHubPartitionMapActorService_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
+      </StatefulService>
+    </Service>
+  </DefaultServices>
 </ApplicationManifest>
