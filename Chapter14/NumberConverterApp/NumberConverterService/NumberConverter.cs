@@ -7,10 +7,13 @@ using System.Threading.Tasks;
 
 namespace NumberConverterService
 {
-public class NumberConverter : IEventProcessor
+    public class NumberConverter : IEventProcessor
 {
     Stopwatch checkpointStopWatch;
-    EventHubClient eventHubClient = EventHubClient.CreateFromConnectionString("[Event Hub Connection string 1]", "hub-2");
+
+    static string eventHubName = "naoki2";
+    static string connectionString = "Endpoint=sb://naokieb.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=s55nJTdDLl1wEx2vcomzeTuGyOxbvASSp5Vkkk/eM3I=";
+    EventHubClient eventHubClient = EventHubClient.CreateFromConnectionString(connectionString, eventHubName);
     public async Task CloseAsync(PartitionContext context, CloseReason reason)
     {
         if (reason == CloseReason.Shutdown)

@@ -7,9 +7,9 @@ namespace TestClient
 {
     class Program
     {
-        static string eventHubName1 = "naoki1";
-        static string eventHubName2 = "naoki2";
-        static string connectionString = "Endpoint=sb://naokieb.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=s55nJTdDLl1wEx2vcomzeTuGyOxbvASSp5Vkkk/eM3I=";
+        static string eventHubName1 = "***";
+        static string eventHubName2 = "***";
+        static string connectionString = "Endpoint=sb://***.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=***";
 
         static Random random = new Random();
         static void Main(string[] args)
