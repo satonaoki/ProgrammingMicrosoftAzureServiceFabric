@@ -1,58 +1,70 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ApplicationManifest xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ApplicationTypeName="ECommerceApplicationType" ApplicationTypeVersion="1.0.0" xmlns="http://schemas.microsoft.com/2011/01/fabric">
-   <Parameters>
-      <Parameter Name="CountryActorService_PartitionCount" DefaultValue="10" />
-      <Parameter Name="GlobalActorService_PartitionCount" DefaultValue="10" />
-      <Parameter Name="ProductActorService_PartitionCount" DefaultValue="10" />
-      <Parameter Name="ProductActorService_MinReplicaSetSize" DefaultValue="2" />
-      <Parameter Name="ProductActorService_TargetReplicaSetSize" DefaultValue="3" />
-      <Parameter Name="Gateway_InstanceCount" DefaultValue="1" />
-   </Parameters>
-   <ServiceManifestImport>
-      <ServiceManifestRef ServiceManifestName="CountryActorPkg" ServiceManifestVersion="1.0.0" />
-   </ServiceManifestImport>
-   <ServiceManifestImport>
-      <ServiceManifestRef ServiceManifestName="GlobalActorPkg" ServiceManifestVersion="1.0.0" />
-   </ServiceManifestImport>
-   <ServiceManifestImport>
-      <ServiceManifestRef ServiceManifestName="ProductActorPkg" ServiceManifestVersion="1.0.0" />
-   </ServiceManifestImport>
-   <ServiceManifestImport>
-      <ServiceManifestRef ServiceManifestName="GatewayPkg" ServiceManifestVersion="1.0.0" />
-      <ConfigOverrides />
-      <Policies>
-         <RunAsPolicy CodePackageRef="Code" UserRef="SetupAdminUser" />
-      </Policies>
-   </ServiceManifestImport>
-   <DefaultServices>
-      <Service Name="CountryActorService" GeneratedIdRef="a6617bf9-26b4-4038-9a0c-d052288ed1a6">
-         <StatelessService ServiceTypeName="CountryActorServiceType">
-            <UniformInt64Partition PartitionCount="[CountryActorService_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
-         </StatelessService>
-      </Service>
-      <Service Name="GlobalActorService" GeneratedIdRef="ebbcb4a5-feb1-4944-abdf-5fb9a809bab3">
-         <StatelessService ServiceTypeName="GlobalActorServiceType">
-            <UniformInt64Partition PartitionCount="[GlobalActorService_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
-         </StatelessService>
-      </Service>
-      <Service Name="ProductActorService" GeneratedIdRef="c9965d6e-d01a-47d4-ae4e-c539cd7368e6">
-         <StatefulService ServiceTypeName="ProductActorServiceType" TargetReplicaSetSize="[ProductActorService_TargetReplicaSetSize]" MinReplicaSetSize="[ProductActorService_MinReplicaSetSize]">
-            <UniformInt64Partition PartitionCount="[ProductActorService_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
-         </StatefulService>
-      </Service>
-      <Service Name="Gateway">
-         <StatelessService ServiceTypeName="GatewayType" InstanceCount="[Gateway_InstanceCount]">
-            <SingletonPartition />
-         </StatelessService>
-      </Service>
-   </DefaultServices>
-   <Principals>
-      <Users>
-         <User Name="SetupAdminUser">
-            <MemberOf>
-               <SystemGroup Name="Administrators" />
-            </MemberOf>
-         </User>
-      </Users>
-   </Principals>
+  <Parameters>
+    <Parameter Name="Gateway_InstanceCount" DefaultValue="1" />
+    <Parameter Name="CountryActorService_PartitionCount" DefaultValue="10" />
+    <Parameter Name="CountryActorService_MinReplicaSetSize" DefaultValue="3" />
+    <Parameter Name="CountryActorService_TargetReplicaSetSize" DefaultValue="3" />
+    <Parameter Name="GlobalActorService_PartitionCount" DefaultValue="10" />
+    <Parameter Name="GlobalActorService_MinReplicaSetSize" DefaultValue="3" />
+    <Parameter Name="GlobalActorService_TargetReplicaSetSize" DefaultValue="3" />
+    <Parameter Name="ProductActorService_PartitionCount" DefaultValue="10" />
+    <Parameter Name="ProductActorService_MinReplicaSetSize" DefaultValue="3" />
+    <Parameter Name="ProductActorService_TargetReplicaSetSize" DefaultValue="3" />
+  </Parameters>
+  <!-- ServicePackage から ServiceManifest をインポートします。ServiceManifestName と ServiceManifestVersion は、
+       ServiceManifest.xml ファイルで定義されている ServiceManifest 要素の [Name] 属性と [Version] 属性と 
+       一致しなければなりません。-->
+  <ServiceManifestImport>
+    <ServiceManifestRef ServiceManifestName="GatewayPkg" ServiceManifestVersion="1.0.0" />
+    <ConfigOverrides />
+    <Policies>
+      <RunAsPolicy CodePackageRef="Code" UserRef="SetupAdminUser" />
+    </Policies>
+  </ServiceManifestImport>
+  <ServiceManifestImport>
+    <ServiceManifestRef ServiceManifestName="CountryActorPkg" ServiceManifestVersion="1.0.0" />
+  </ServiceManifestImport>
+  <ServiceManifestImport>
+    <ServiceManifestRef ServiceManifestName="GlobalActorPkg" ServiceManifestVersion="1.0.0" />
+  </ServiceManifestImport>
+  <ServiceManifestImport>
+    <ServiceManifestRef ServiceManifestName="ProductActorPkg" ServiceManifestVersion="1.0.0" />
+  </ServiceManifestImport>
+  <DefaultServices>
+    <!-- 以下のセクションでは、このアプリケーション型のインスタンスが 
+         作成されるときにサービス型のインスタンスが作成されます。また、ServiceFabric PowerShell
+         モジュールを使用してサービス型の 1 つ以上のインスタンスを作成することもできます。
+         
+         以下の ServiceTypeName 属性は、インポートされた ServiceManifest.xml ファイル内で定義されている名前と一致していなければなりません。-->
+    <Service Name="Gateway">
+      <StatelessService ServiceTypeName="GatewayType" InstanceCount="[Gateway_InstanceCount]">
+        <SingletonPartition />
+      </StatelessService>
+    </Service>
+    <Service Name="CountryActorService" GeneratedIdRef="22611c23-7382-4f44-b0eb-63ffb777c50a|Persisted">
+      <StatefulService ServiceTypeName="CountryActorServiceType" TargetReplicaSetSize="[CountryActorService_TargetReplicaSetSize]" MinReplicaSetSize="[CountryActorService_MinReplicaSetSize]">
+        <UniformInt64Partition PartitionCount="[CountryActorService_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
+      </StatefulService>
+    </Service>
+    <Service Name="GlobalActorService" GeneratedIdRef="bc6209b7-62d5-4e85-8b9b-27ee66c15786|Persisted">
+      <StatefulService ServiceTypeName="GlobalActorServiceType" TargetReplicaSetSize="[GlobalActorService_TargetReplicaSetSize]" MinReplicaSetSize="[GlobalActorService_MinReplicaSetSize]">
+        <UniformInt64Partition PartitionCount="[GlobalActorService_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
+      </StatefulService>
+    </Service>
+    <Service Name="ProductActorService" GeneratedIdRef="f18f6b21-0a9e-44fb-852b-3fb76ea8449b|Persisted">
+      <StatefulService ServiceTypeName="ProductActorServiceType" TargetReplicaSetSize="[ProductActorService_TargetReplicaSetSize]" MinReplicaSetSize="[ProductActorService_MinReplicaSetSize]">
+        <UniformInt64Partition PartitionCount="[ProductActorService_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
+      </StatefulService>
+    </Service>
+  </DefaultServices>
+  <Principals>
+    <Users>
+      <User Name="SetupAdminUser">
+        <MemberOf>
+          <SystemGroup Name="Administrators" />
+        </MemberOf>
+      </User>
+    </Users>
+  </Principals>
 </ApplicationManifest>

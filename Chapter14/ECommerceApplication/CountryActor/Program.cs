@@ -2,30 +2,29 @@
 using System.Diagnostics;
 using System.Fabric;
 using System.Threading;
-using Microsoft.ServiceFabric.Actors;
+using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Actors.Runtime;
 
 namespace CountryActor
 {
     internal static class Program
     {
         /// <summary>
-        /// This is the entry point of the service host process.
+        /// これは、サービス ホスト プロセスのエントリ ポイントです。
         /// </summary>
         private static void Main()
         {
             try
             {
-                // Creating a FabricRuntime connects this host process to the Service Fabric runtime on this node.
-                using (FabricRuntime fabricRuntime = FabricRuntime.Create())
-                {
-                    // This line registers your actor class with the Fabric Runtime.
-                    // The contents of your ServiceManifest.xml and ApplicationManifest.xml files
-                    // are automatically populated when you build this project.
-                    // For information, see http://aka.ms/servicefabricactorsplatform
-                    fabricRuntime.RegisterActor<CountryActor>();
+                // この行は、Service Fabric ランタイムにアクター クラスをホストするアクター サービスを登録します。
+                // ServiceManifest.xml ファイルと ApplicationManifest.xml ファイルのコンテンツ
+                // は、このプロジェクトをビルドするときに自動的に設定されます。
+                //詳細については、https://aka.ms/servicefabricactorsplatform を参照してください
 
-                    Thread.Sleep(Timeout.Infinite);  // Prevents this host process from terminating so services keeps running.
-                }
+                ActorRuntime.RegisterActorAsync<CountryActor>(
+                   (context, actorType) => new ActorService(context, actorType)).GetAwaiter().GetResult();
+
+                Thread.Sleep(Timeout.Infinite);
             }
             catch (Exception e)
             {

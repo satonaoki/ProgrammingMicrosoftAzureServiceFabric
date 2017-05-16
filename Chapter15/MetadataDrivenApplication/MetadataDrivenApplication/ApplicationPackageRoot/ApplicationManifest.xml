@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ApplicationManifest xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ApplicationTypeName="MetadataDrivenApplicationType" ApplicationTypeVersion="1.0.0" xmlns="http://schemas.microsoft.com/2011/01/fabric">
+  <Parameters>
+    <Parameter Name="Circle_PartitionCount" DefaultValue="10" />
+    <Parameter Name="Circle_MinReplicaSetSize" DefaultValue="1" />
+    <Parameter Name="Circle_TargetReplicaSetSize" DefaultValue="1" />
+    <Parameter Name="Rectangle_PartitionCount" DefaultValue="10" />
+    <Parameter Name="Rectangle_MinReplicaSetSize" DefaultValue="1" />
+    <Parameter Name="Rectangle_TargetReplicaSetSize" DefaultValue="1" />
+  </Parameters>
+  <!-- ServicePackage から ServiceManifest をインポートします。ServiceManifestName と ServiceManifestVersion は、
+       ServiceManifest.xml ファイルで定義されている ServiceManifest 要素の [Name] 属性と [Version] 属性と 
+       一致しなければなりません。-->
+  <ServiceManifestImport>
+    <ServiceManifestRef ServiceManifestName="RectanglePkg" ServiceManifestVersion="1.0.0" />
+  </ServiceManifestImport>
+  <ServiceManifestImport>
+    <ServiceManifestRef ServiceManifestName="CirclePkg" ServiceManifestVersion="1.0.0" />
+  </ServiceManifestImport>
+  <ServiceManifestImport>
+    <ServiceManifestRef ServiceManifestName="ShapePkg" ServiceManifestVersion="1.0.0" />
+  </ServiceManifestImport>
+  <DefaultServices>
+    <Service Name="Circle" GeneratedIdRef="0529805d-a2a7-48e3-a5bc-c5d4aa2e0071|None">
+      <StatefulService ServiceTypeName="CircleType" TargetReplicaSetSize="[Circle_TargetReplicaSetSize]" MinReplicaSetSize="[Circle_MinReplicaSetSize]">
+        <UniformInt64Partition PartitionCount="[Circle_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
+      </StatefulService>
+    </Service>
+    <Service Name="Rectangle" GeneratedIdRef="22ff19cc-c41c-40ea-af5c-ed507a1ba582|None">
+      <StatefulService ServiceTypeName="RectangleType" TargetReplicaSetSize="[Rectangle_TargetReplicaSetSize]" MinReplicaSetSize="[Rectangle_MinReplicaSetSize]">
+        <UniformInt64Partition PartitionCount="[Rectangle_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
+      </StatefulService>
+    </Service>
+    <!-- 以下のセクションでは、このアプリケーション型のインスタンスが 
+         作成されるときにサービス型のインスタンスが作成されます。また、ServiceFabric PowerShell
+         モジュールを使用してサービス型の 1 つ以上のインスタンスを作成することもできます。
+         
+         以下の ServiceTypeName 属性は、インポートされた ServiceManifest.xml ファイル内で定義されている名前と一致していなければなりません。-->
+  </DefaultServices>
+</ApplicationManifest>

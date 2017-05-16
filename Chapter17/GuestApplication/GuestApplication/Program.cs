@@ -16,6 +16,7 @@ namespace GuestApplication
             HttpListener listener = new HttpListener();
             listener.Prefixes.Add("http://+:8088/");
             listener.Start();
+
             while (true)
             {
                 var context = listener.GetContext();

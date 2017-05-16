@@ -1,11 +1,11 @@
-﻿using Microsoft.ServiceFabric.Services.Runtime;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.Tracing;
 using System.Fabric;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Services.Runtime;
 
 namespace WatchdogService
 {
@@ -16,18 +16,18 @@ namespace WatchdogService
 
         static ServiceEventSource()
         {
-            // A workaround for the problem where ETW activities do not get tracked until Tasks infrastructure is initialized.
-            // This problem will be fixed in .NET Framework 4.6.2.
-            Task.Run(() => { }).Wait();
+            // タスク インフラストラクチャが初期化されるまで ETW アクティビティが追跡されないという問題の回避策です。
+            // この問題は .NET Framework 4.6.2 で修正される予定です。
+            Task.Run(() => { });
         }
 
-        // Instance constructor is private to enforce singleton semantics
+        // インスタンス コンストラクターは、シングルトン セマンティックを適用するためにプライベートになっています
         private ServiceEventSource() : base() { }
 
-        #region Keywords
-        // Event keywords can be used to categorize events. 
-        // Each keyword is a bit flag. A single event can be associated with multiple keywords (via EventAttribute.Keywords property).
-        // Keywords must be defined as a public class named 'Keywords' inside EventSource that uses them.
+        #region キーワード
+        // イベント キーワードは、イベントを分類するために使用できます。
+        // 各キーワードは、ビット フラグです。1 つのイベントを (EventAttribute.Keywords プロパティを介して) 複数のキーワードに関連付けることができます。
+        // キーワードは、キーワードを使用する EventSource 内で 'Keywords' という名前のパブリック クラスとして定義されていなければなりません。
         public static class Keywords
         {
             public const EventKeywords Requests = (EventKeywords)0x1L;
@@ -35,14 +35,14 @@ namespace WatchdogService
         }
         #endregion
 
-        #region Events
-        // Define an instance method for each event you want to record and apply an [Event] attribute to it.
-        // The method name is the name of the event.
-        // Pass any parameters you want to record with the event (only primitive integer types, DateTime, Guid & string are allowed).
-        // Each event method implementation should check whether the event source is enabled, and if it is, call WriteEvent() method to raise the event.
-        // The number and types of arguments passed to every event method must exactly match what is passed to WriteEvent().
-        // Put [NonEvent] attribute on all methods that do not define an event.
-        // For more information see https://msdn.microsoft.com/en-us/library/system.diagnostics.tracing.eventsource.aspx
+        #region イベント
+        // 記録して [Event] 属性を適用したいイベントごとにインスタンス メソッドを定義します。
+        // メソッド名は、イベントの名前です。
+        // イベントで記録したい任意のパラメーターを渡します (プリミティブの整数型、DateTime、Guid、文字列のみが許可されています)。
+        // 各イベント メソッドの実装では、イベント ソースが有効かどうかをチェックする必要があります。有効な場合、WriteEvent() メソッドを呼び出してイベントを発生させます。
+        // 各イベント メソッドに渡される引数の数と型は、WriteEvent() に渡される数と型とまったく一致していなければなりません。
+        // [NonEvent] 属性を、イベントを定義しないすべてのメソッドに設定します。
+        // 詳しくは、https://msdn.microsoft.com/ja-jp/library/system.diagnostics.tracing.eventsource.aspx をご覧ください
 
         [NonEvent]
         public void Message(string message, params object[] args)
@@ -65,44 +65,26 @@ namespace WatchdogService
         }
 
         [NonEvent]
-        public void ServiceMessage(StatelessService service, string message, params object[] args)
+        public void ServiceMessage(StatelessServiceContext serviceContext, string message, params object[] args)
         {
             if (this.IsEnabled())
             {
                 string finalMessage = string.Format(message, args);
                 ServiceMessage(
-                    service.ServiceInitializationParameters.ServiceName.ToString(),
-                    service.ServiceInitializationParameters.ServiceTypeName,
-                    service.ServiceInitializationParameters.InstanceId,
-                    service.ServiceInitializationParameters.PartitionId,
-                    service.ServiceInitializationParameters.CodePackageActivationContext.ApplicationName,
-                    service.ServiceInitializationParameters.CodePackageActivationContext.ApplicationTypeName,
-                    FabricRuntime.GetNodeContext().NodeName,
+                    serviceContext.ServiceName.ToString(),
+                    serviceContext.ServiceTypeName,
+                    serviceContext.InstanceId,
+                    serviceContext.PartitionId,
+                    serviceContext.CodePackageActivationContext.ApplicationName,
+                    serviceContext.CodePackageActivationContext.ApplicationTypeName,
+                    serviceContext.NodeContext.NodeName,
                     finalMessage);
             }
         }
 
-        [NonEvent]
-        public void ServiceMessage(StatefulService service, string message, params object[] args)
-        {
-            if (this.IsEnabled())
-            {
-                string finalMessage = string.Format(message, args);
-                ServiceMessage(
-                    service.ServiceInitializationParameters.ServiceName.ToString(),
-                    service.ServiceInitializationParameters.ServiceTypeName,
-                    service.ServiceInitializationParameters.ReplicaId,
-                    service.ServiceInitializationParameters.PartitionId,
-                    service.ServiceInitializationParameters.CodePackageActivationContext.ApplicationName,
-                    service.ServiceInitializationParameters.CodePackageActivationContext.ApplicationTypeName,
-                    FabricRuntime.GetNodeContext().NodeName,
-                    finalMessage);
-            }
-        }
-
-        // For very high-frequency events it might be advantageous to raise events using WriteEventCore API.
-        // This results in more efficient parameter handling, but requires explicit allocation of EventData structure and unsafe code.
-        // To enable this code path, define UNSAFE conditional compilation symbol and turn on unsafe code support in project properties.
+        // 非常に頻度の高いイベントの場合、WriteEventCore API を使用してイベントを発生させると便利なときがあります。
+        // これによってパラメーターの処理が効率的になりますが、EventData 構造とアンセーフ コードを明示的に割り当てることが必要になります。
+        // このコード パスを有効にするには、UNSAFE 条件付きコンパイル シンボルを定義し、プロジェクト プロパティでアンセーフ コードのサポートを有効にします。
         private const int ServiceMessageEventId = 2;
         [Event(ServiceMessageEventId, Level = EventLevel.Informational, Message = "{7}")]
         private
@@ -154,9 +136,9 @@ namespace WatchdogService
             WriteEvent(ServiceHostInitializationFailedEventId, exception);
         }
 
-        // A pair of events sharing the same name prefix with a "Start"/"Stop" suffix implicitly marks boundaries of an event tracing activity.
-        // These activities can be automatically picked up by debugging and profiling tools, which can compute their execution time, child activities,
-        // and other statistics.
+        // 同じ名前のプレフィックスと "Start"/"Stop" というサフィックスを持つイベントのペアによって、イベント追跡アクティビティの境界が暗黙的にマークされます。
+        // これらのアクティビティはデバッグ ツールとプロファイル ツールによって自動的に選択されます。それにより、実行時間、子アクティビティ、
+        // その他の統計情報を計算できます。
         private const int ServiceRequestStartEventId = 5;
         [Event(ServiceRequestStartEventId, Level = EventLevel.Informational, Message = "Service request '{0}' started", Keywords = Keywords.Requests)]
         public void ServiceRequestStart(string requestTypeName)
@@ -166,20 +148,13 @@ namespace WatchdogService
 
         private const int ServiceRequestStopEventId = 6;
         [Event(ServiceRequestStopEventId, Level = EventLevel.Informational, Message = "Service request '{0}' finished", Keywords = Keywords.Requests)]
-        public void ServiceRequestStop(string requestTypeName)
+        public void ServiceRequestStop(string requestTypeName, string exception = "")
         {
-            WriteEvent(ServiceRequestStopEventId, requestTypeName);
-        }
-
-        private const int ServiceRequestFailedEventId = 7;
-        [Event(ServiceRequestFailedEventId, Level = EventLevel.Error, Message = "Service request '{0}' failed", Keywords = Keywords.Requests)]
-        public void ServiceRequestFailed(string requestTypeName, string exception)
-        {
-            WriteEvent(ServiceRequestFailedEventId, exception);
+            WriteEvent(ServiceRequestStopEventId, requestTypeName, exception);
         }
         #endregion
 
-        #region Private methods
+        #region プライベート メソッド
 #if UNSAFE
         private int SizeInBytes(string s)
         {

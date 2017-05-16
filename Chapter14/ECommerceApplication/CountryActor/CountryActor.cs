@@ -1,32 +1,54 @@
-﻿using CountryActor.Interfaces;
-using Microsoft.ServiceFabric.Actors;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Actors;
+using Microsoft.ServiceFabric.Actors.Runtime;
+using Microsoft.ServiceFabric.Actors.Client;
+using CountryActor.Interfaces;
 using ProductActor.Interfaces;
 
 namespace CountryActor
 {
     /// <remarks>
-    /// Each ActorID maps to an instance of this class.
-    /// The IStateActor interface (in a separate DLL that client code can
-    /// reference) defines the operations exposed by StateActor objects.
+    /// このクラスはアクターを表します。
+    /// 各 ActorID がこのクラスのインスタンスにマップされます。
+    /// StatePersistence 属性はアクターの状態の永続化とレプリケーションを次のように決定します:
+    ///  - 永続化: 状態はディスクに書き込まれ、レプリケートされます。
+    ///  - 可変: 状態はメモリにのみ保持され、レプリケートされます。
+    ///  - なし: 状態はメモリにのみ保持され、レプリケートされません。
     /// </remarks>
-    internal class CountryActor : StatelessActor, ICountryActor
+    [StatePersistence(StatePersistence.Persisted)]
+    internal class CountryActor : Actor, ICountryActor
     {
-        Task<List<Tuple<string, long>>> ICountryActor.CountCountrySalesAsync()
+        /// <summary>
+        /// CountryActor の新しいインスタンスを初期化します
+        /// </summary>
+        /// <param name="actorService">このアクター インスタンスをホストする Microsoft.ServiceFabric.Actors.Runtime.ActorService。</param>
+        /// <param name="actorId">このアクター インスタンスの Microsoft.ServiceFabric.Actors.ActorId。</param>
+        public CountryActor(ActorService actorService, ActorId actorId)
+            : base(actorService, actorId)
         {
-            string[] products = { "VCR", "Fax", "CassettePlayer", "Camcorder", "GameConsole",
-                            "CD", "TV", "Radio", "Phone", "Karaoke"};
+        }
+
+        public Task<List<Tuple<string, long>>> CountCountrySalesAsync()
+        {
+            string[] products = {
+                "VCR", "Fax", "CassettePlayer", "Camcorder", "GameConsole",
+                "CD", "TV", "Radio", "Phone", "Karaoke"};
+
             List<Tuple<string, long>> ret = new List<Tuple<string, long>>();
+
             Parallel.ForEach(products, product =>
             {
                 string actorId = this.Id.GetStringId() + "-" + product;
-                var proxy = ActorProxy.Create<IProductActor>(new ActorId(actorId), "fabric:/ECommerceApplication");
-                ret.Add(new Tuple<string, long>(product, proxy.GetSalesAsync().Result));
+                var proxy = ActorProxy.Create<IProductActor>(
+                new ActorId(actorId), "fabric:/ECommerceApplication");
+                ret.Add(new Tuple<string, long>(product,
+                proxy.GetSalesAsync().Result));
             });
+
             return Task.FromResult(ret);
         }
     }

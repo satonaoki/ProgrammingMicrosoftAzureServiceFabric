@@ -1,76 +1,94 @@
-﻿using ThrottlingActor.Interfaces;
-using Microsoft.ServiceFabric.Actors;
-using System;
+﻿using Microsoft.ServiceFabric.Actors;
+using Microsoft.ServiceFabric.Actors.Runtime;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Threading;
 using System.Threading.Tasks;
-using System.Security.Cryptography;
+using ThrottlingActor.Interfaces;
+using System;
 
 namespace ThrottlingActor
 {
     /// <remarks>
-    /// Each ActorID maps to an instance of this class.
-    /// The IProjName  interface (in a separate DLL that client code can
-    /// reference) defines the operations exposed by ProjName objects.
+    /// このクラスはアクターを表します。
+    /// 各 ActorID がこのクラスのインスタンスにマップされます。
+    /// StatePersistence 属性はアクターの状態の永続化とレプリケーションを次のように決定します:
+    ///  - 永続化: 状態はディスクに書き込まれ、レプリケートされます。
+    ///  - 可変: 状態はメモリにのみ保持され、レプリケートされます。
+    ///  - なし: 状態はメモリにのみ保持され、レプリケートされません。
     /// </remarks>
-[ActorService(Name = "ThrottlingActor")]
-internal class ThrottlingActor : StatefulActor<ThrottlingActor.ActorState>, IThrottlingActor, IThrottlingActorManagement
+    [StatePersistence(StatePersistence.Persisted)]
+    [ActorService(Name = "ThrottlingActor")]
+    internal class ThrottlingActor : Actor, IThrottlingActor, IThrottlingActorManagement
     {
-        [DataContract]
-        internal sealed class ActorState
+        /// <summary>
+        /// ThrottlingActor の新しいインスタンスを初期化します
+        /// </summary>
+        /// <param name="actorService">このアクター インスタンスをホストする Microsoft.ServiceFabric.Actors.Runtime.ActorService。</param>
+        /// <param name="actorId">このアクター インスタンスの Microsoft.ServiceFabric.Actors.ActorId。</param>
+        public ThrottlingActor(ActorService actorService, ActorId actorId)
+            : base(actorService, actorId)
         {
-            [DataMember]
-            public int Credit { get; set; }
-            [DataMember]
-            public Dictionary<string, int> ServiceCreditScore { get; set; }
         }
 
-        protected override Task OnActivateAsync()
+        public async Task<int> AddCreditsAsync(int credit)
         {
-            if (this.State == null)
+            var remain = await this.StateManager.GetStateAsync<int>("Credit");
+            remain += credit;
+            await this.StateManager.SetStateAsync<int>("Credit", remain);
+            return remain;
+        }
+
+        public async Task<string> GetAccessTokenAsync(string actionId)
+        {
+            string token = "";
+            var dict = await this.StateManager.GetStateAsync<Dictionary<string, int>>("ServiceCreditScore");
+
+            if (!dict.ContainsKey(actionId))
             {
-                // This is the first time this actor has ever been activated.
-                // Set the actor's initial state values.
-                this.State = new ActorState
-                {
-                    Credit = 100,
-                    ServiceCreditScore = new Dictionary<string, int>
-                    {
-                        {"action1", 50 },
-                        {"action2", 25 },
-                        {"action3", 10 }
-                    }
-                };
+                token = "Unsupported action.";
+                return token;
             }
 
-            return Task.FromResult(true);
-        }
+            int credit = dict[actionId];
+            var remain = await this.StateManager.GetStateAsync<int>("Credit");
 
-Task<int> IThrottlingActorManagement.AddCreditsAsync(int credits)
-{
-    this.State.Credit += credits;
-    return Task.FromResult(this.State.Credit);
-}
-
-        Task<string> IThrottlingActor.GetAccessTokenAsync(string actionId)
-        {
-            if (!this.State.ServiceCreditScore.ContainsKey(actionId))
-                return Task.FromResult("Unsupported action.");
-            int credit = this.State.ServiceCreditScore[actionId];
-            if (this.State.Credit - credit >= 0)
+            if (remain - credit >= 0)
             {
-                this.State.Credit -= credit;
-                string token = "Remaining credit: " + this.State.Credit;
-                //1. Generate a symetric/asemetric key
-                //2. Generate an access token
-                //3. Encrypt and optionally sign the token
-                return Task.FromResult(token);
+                remain -= credit;
+                await this.StateManager.SetStateAsync<int>("Credit", remain);
+                token = "Remaining credit: " + remain;
+                // 1. 対称／非対称キーを生成
+                // 2. アクセストークンを生成
+                // 3. トークンを暗号化し、必要に応じて署名
             }
             else
-                return Task.FromResult("Insufficient credit");
+            {
+                token = "Insufficient credit";
+            }
+            return token;
+        }
+
+        /// <summary>
+        /// このメソッドはアクターがアクティブになると必ず呼び出されます。
+        /// アクターは、メソッドのいずれかが初めて呼び出されるときにアクティブ化されます。
+        /// </summary>
+        protected async override Task OnActivateAsync()
+        {
+            ActorEventSource.Current.ActorMessage(this, "Actor activated.");
+
+            var credit = await this.StateManager.TryGetStateAsync<List<string>>("Credit");
+
+            if (!credit.HasValue)
+            {
+                await this.StateManager.SetStateAsync<int>("Credit", 100);
+                await this.StateManager.SetStateAsync<Dictionary<string, int>>(
+                   "ServiceCreditScore",
+                    new Dictionary<string, int> {
+                        { "action1", 50 },
+                        { "action2", 25 },
+                        { "action3", 10 }
+                    }
+                );
+            }
         }
     }
 }

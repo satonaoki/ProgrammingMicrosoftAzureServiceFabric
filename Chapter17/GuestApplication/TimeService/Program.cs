@@ -2,31 +2,32 @@
 using System.Diagnostics;
 using System.Fabric;
 using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Services.Runtime;
 
 namespace TimeService
 {
     internal static class Program
     {
         /// <summary>
-        /// This is the entry point of the service host process.
+        /// これは、サービス ホスト プロセスのエントリ ポイントです。
         /// </summary>
         private static void Main()
         {
             try
             {
-                // Creating a FabricRuntime connects this host process to the Service Fabric runtime.
-                using (FabricRuntime fabricRuntime = FabricRuntime.Create())
-                {
-                    // The ServiceManifest.XML file defines one or more service type names.
-                    // RegisterServiceType maps a service type name to a .NET class.
-                    // When Service Fabric creates an instance of this service type,
-                    // an instance of the class is created in this host process.
-                    fabricRuntime.RegisterServiceType("TimeServiceType", typeof(TimeService));
+                // ServiceManifest.XML ファイルは、1 つ以上のサービス型の名前を定義します。
+                // サービスを登録すると、サービス型の名前が .NET 型にマップされます。
+                // Service Fabric がこのサービス型のインスタンスを作成すると、
+                // このホスト プロセスでクラスのインスタンスが作成されます。
 
-                    ServiceEventSource.Current.ServiceTypeRegistered(Process.GetCurrentProcess().Id, typeof(TimeService).Name);
+                ServiceRuntime.RegisterServiceAsync("TimeServiceType",
+                    context => new TimeService(context)).GetAwaiter().GetResult();
 
-                    Thread.Sleep(Timeout.Infinite);  // Prevents this host process from terminating so services keeps running.
-                }
+                ServiceEventSource.Current.ServiceTypeRegistered(Process.GetCurrentProcess().Id, typeof(TimeService).Name);
+
+                // サービスが実行を続けるために、このホスト プロセスが終了しないようにします。
+                Thread.Sleep(Timeout.Infinite);
             }
             catch (Exception e)
             {

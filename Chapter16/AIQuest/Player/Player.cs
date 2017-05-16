@@ -7,6 +7,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Actors.Runtime;
 
 namespace Player
 {
@@ -15,59 +16,38 @@ namespace Player
     /// The IProjName  interface (in a separate DLL that client code can
     /// reference) defines the operations exposed by ProjName objects.
     /// </remarks>
-    internal class Player : StatefulActor<Player.ActorState>, IPlayer
+    [StatePersistence(StatePersistence.Persisted)]
+    internal class Player : Actor, IPlayer
     {
-        /// <summary>
-        /// This class contains each actor's replicated state.
-        /// Each instance of this class is serialized and replicated every time an actor's state is saved.
-        /// For more information, see http://aka.ms/servicefabricactorsstateserialization
-        /// </summary>
-        [DataContract]
-        internal sealed class ActorState
+        public Player(ActorService actorService, ActorId actorId) : base(actorService, actorId)
         {
-            [DataMember]
-            public int Count { get; set; }
-
-            public override string ToString()
-            {
-                return string.Format(CultureInfo.InvariantCulture, "Player.ActorState[Count = {0}]", Count);
-            }
         }
 
         /// <summary>
         /// This method is called whenever an actor is activated.
         /// </summary>
-        protected override Task OnActivateAsync()
+        protected override async Task OnActivateAsync()
         {
-            if (this.State == null)
+            var result = await this.StateManager.TryGetStateAsync<int>("Count");
+            if (!result.HasValue)
             {
-                // This is the first time this actor has ever been activated.
-                // Set the actor's initial state values.
-                this.State = new ActorState { Count = 0 };
+                await this.StateManager.SetStateAsync<int>("Count", 0);
             }
 
-            ActorEventSource.Current.ActorMessage(this, "State initialized to {0}", this.State);
-            return Task.FromResult(true);
+            ActorEventSource.Current.ActorMessage(this, "State initialized to {0}", this.StateManager.GetStateAsync<int>("Count"));
         }
 
-
-        [Readonly]
         Task<int> IPlayer.GetCountAsync()
         {
-            // For methods that do not change the actor's state,
-            // [Readonly] improves performance by not performing serialization and replication of the actor's state.
-            ActorEventSource.Current.ActorMessage(this, "Getting current count value as {0}", this.State.Count);
-            return Task.FromResult(this.State.Count);
+            ActorEventSource.Current.ActorMessage(this, "Getting current count value as {0}", this.StateManager.GetStateAsync<int>("Count"));
+            return this.StateManager.GetStateAsync<int>("Count");
         }
 
         Task IPlayer.SetCountAsync(int count)
         {
             ActorEventSource.Current.ActorMessage(this, "Setting current count of value to {0}", count);
-            this.State.Count = count;  // Update the state
 
-            return Task.FromResult(true);
-            // When this method returns, the Actor framework automatically
-            // serializes & replicates the actor's state.
+            return this.StateManager.SetStateAsync<int>("Count", count);
         }
     }
 }

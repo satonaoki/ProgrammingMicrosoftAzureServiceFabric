@@ -1,12 +1,14 @@
-﻿using System;
+﻿using Microsoft.ServiceFabric.Actors;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.ServiceFabric.Actors;
 
 namespace GlobalActor.Interfaces
 {
+    /// <summary>
+    /// このインターフェイスは、アクターが公開するメソッドを定義します。
+    /// クライアントはこのインターフェイスを使用して、インターフェイスを実装するアクターと対話します。
+    /// </summary>
     public interface IGlobalActor : IActor
     {
         Task<List<Tuple<string, long>>> CountGlobalSalesAsync();

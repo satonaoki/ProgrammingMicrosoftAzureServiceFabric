@@ -1,71 +1,74 @@
 ﻿using ActorSwarm.Interfaces;
-using ActorSwarm.Common;
+using Common;
 using Microsoft.ServiceFabric.Actors;
+using Microsoft.ServiceFabric.Actors.Runtime;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace ActorSwarm
 {
-    [ActorService(Name ="SpatialSwarm")]
-    internal class ActorSwarm : StatefulActor<SwarmState>, IActorSwarm
+    [ActorService(Name = "SpatialSwarm")]
+    [StatePersistence(StatePersistence.Persisted)]
+    internal class ActorSwarm : Actor, IActorSwarm
     {
         int mSize = 100;
         static Random mRand = new Random();
-        
-        /// <summary>
-        /// This method is called whenever an actor is activated.
-        /// </summary>
+
+        public ActorSwarm(ActorService actorService, ActorId actorId) : base(actorService, actorId)
+        {
+        }
+
         protected override Task OnActivateAsync()
         {
-            if (this.State == null)
+            this.StateManager.AddStateAsync<SwarmState>("SwarmState", new SwarmState
             {
-                this.State = new SwarmState
-                {
-                    SharedState = new Shared2DArray<byte>(),
-                    VirtualActorStates = new List< ResidentState>(),
-                    VirutalActors = new List<IVirtualActor>()
-                };
-            }
+                SharedState = new Shared2DArray<byte>(),
+                VirtualActorStates = new List<ResidentState>(),
+                VirutalActors = new List<IVirtualActor>()
+            });
 
-            ActorEventSource.Current.ActorMessage(this, "State initialized to {0}", this.State);
             return Task.FromResult(true);
         }
 
+        public async Task InitializeAsync(int size, float probability)
+        {
+           var mSwarmState = await this.StateManager.GetStateAsync<SwarmState>("SwarmState");
+           mSwarmState.SharedState.Initialize(mSize);
+           int count = (int)(size * size * probability);
 
-        public Task InitializeAsync(int size, float probability)
-        {
-            this.State.SharedState.Initialize(mSize);
-            int count = (int)(size * size * probability);
-            for (int i = 0; i < count; i++)
-            {
-                this.State.VirtualActorStates.Add(new ResidentState { X = mRand.Next(0, size), Y = mRand.Next(0, size), Tag = (byte)mRand.Next(1,3) });
-                this.State.VirutalActors.Add(new Resident(size, i, this.State.VirtualActorStates[i], this.State.SharedState));
-            }
-            return Task.FromResult(1);
+           for (int i = 0; i < count; i++)
+           {
+                 mSwarmState.VirtualActorStates.Add(new ResidentState
+                 {
+                     X = mRand.Next(0, size), Y = mRand.Next(0, size), Tag = (byte)mRand.Next(1, 3)
+                 });
+                 mSwarmState.VirutalActors.Add(new Resident(size, i, mSwarmState.VirtualActorStates[i], mSwarmState.SharedState));
+           }
+           await this.StateManager.SetStateAsync<SwarmState>("SwarmState", mSwarmState);
         }
-        public Task<string> ReadStateStringAsync()
+
+        public async Task<string> ReadStateStringAsync()
         {
-            return Task.FromResult<string>(this.State.SharedState.ToString());
+            var mSwarmState = await this.StateManager.GetStateAsync<SwarmState>("SwarmState");
+            return mSwarmState.SharedState.ToString();
         }
 
         public async Task EvolveAsync()
         {
-            foreach (var actor in this.State.VirutalActors)
+            var mSwarmState = await this.StateManager.GetStateAsync<SwarmState>("SwarmState");
+            foreach (var actor in mSwarmState.VirutalActors)
             {
-                this.State.SharedState.Propose(await actor.ProposeAsync());
+                mSwarmState.SharedState.Propose(await actor.ProposeAsync());
             }
-            this.State.SharedState.ResolveConflictsAndCommit((p)=> {
+            mSwarmState.SharedState.ResolveConflictsAndCommit((p) => {
                 if (p is Proposal2D<byte>)
                 {
                     var proposal = (Proposal2D<byte>)p;
-                    this.State.VirutalActors[proposal.ActorId].ApproveProposalAsync(proposal);
+                    mSwarmState.VirutalActors[proposal.ActorId].ApproveProposalAsync(proposal);
                 }
             });
+            await this.StateManager.SetStateAsync<SwarmState>("SwarmState", mSwarmState);
         }
     }
 }

@@ -1,23 +1,20 @@
 ﻿using Microsoft.ServiceFabric.Services.Communication.Runtime;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Threading;
-using System.Fabric.Description;
 using System.Fabric;
-using System.Globalization;
+using System.Fabric.Description;
+using System.IO;
 using System.Net;
 using System.Net.WebSockets;
-using System.IO;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Gateway
 {
-public class WebSocketListener : ICommunicationListener
+    public class WebSocketListener : ICommunicationListener
 {
-    private readonly ServiceInitializationParameters serviceInitializationParameters;
-    private string listeningAddress;
+    private readonly StatelessServiceContext context;
+        private string listeningAddress;
     private readonly string appRoot;
     private string publishAddress;
     private WebSocketApp webSocketApp;
@@ -26,11 +23,11 @@ public class WebSocketListener : ICommunicationListener
     private readonly Func<IWebSocketConnectionHandler> createConnectionHandler;
     public WebSocketListener(
         string appRoot,
-        ServiceInitializationParameters serviceInitializationParameters,
+        StatelessServiceContext context,
         Func<IWebSocketConnectionHandler> createConnectionHandler)
     {
         this.appRoot = appRoot;
-        this.serviceInitializationParameters = serviceInitializationParameters;
+        this.context = context;
         this.createConnectionHandler = createConnectionHandler;
     }
     public void Abort()
@@ -46,8 +43,7 @@ public class WebSocketListener : ICommunicationListener
 
 public async Task<string> OpenAsync(CancellationToken cancellationToken)
 {
-    EndpointResourceDescription endpoint = this.serviceInitializationParameters
-        .CodePackageActivationContext.GetEndpoint("ServiceEndpoint");
+    EndpointResourceDescription endpoint = this.context.CodePackageActivationContext.GetEndpoint("ServiceEndpoint");
     int port = endpoint.Port;
     this.listeningAddress = string.Format("http://+:{0}/{1}", port, appRoot);
     this.publishAddress = this.listeningAddress.Replace(

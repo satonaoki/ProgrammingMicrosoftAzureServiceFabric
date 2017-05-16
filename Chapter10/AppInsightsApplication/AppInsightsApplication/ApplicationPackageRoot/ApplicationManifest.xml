@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ApplicationManifest xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ApplicationTypeName="AppInsightsApplicationType" ApplicationTypeVersion="1.0.0" xmlns="http://schemas.microsoft.com/2011/01/fabric">
+  <Parameters>
+    <Parameter Name="StatelessInsights_InstanceCount" DefaultValue="-1" />
+  </Parameters>
+  <!-- ServicePackage から ServiceManifest をインポートします。ServiceManifestName と ServiceManifestVersion は、
+       ServiceManifest.xml ファイルで定義されている ServiceManifest 要素の [Name] 属性と [Version] 属性と 
+       一致しなければなりません。-->
+  <ServiceManifestImport>
+    <ServiceManifestRef ServiceManifestName="StatelessInsightsPkg" ServiceManifestVersion="1.0.0" />
+    <ConfigOverrides />
+  </ServiceManifestImport>
+  <DefaultServices>
+    <!-- 以下のセクションでは、このアプリケーション型のインスタンスが 
+         作成されるときにサービス型のインスタンスが作成されます。また、ServiceFabric PowerShell
+         モジュールを使用してサービス型の 1 つ以上のインスタンスを作成することもできます。
+         
+         以下の ServiceTypeName 属性は、インポートされた ServiceManifest.xml ファイル内で定義されている名前と一致していなければなりません。-->
+    <Service Name="StatelessInsights">
+      <StatelessService ServiceTypeName="StatelessInsightsType" InstanceCount="[StatelessInsights_InstanceCount]">
+        <SingletonPartition />
+      </StatelessService>
+    </Service>
+  </DefaultServices>
+</ApplicationManifest>

@@ -1,0 +1,102 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ApplicationManifest xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ApplicationTypeName="MessyChessApplicationType" ApplicationTypeVersion="1.0.0" xmlns="http://schemas.microsoft.com/2011/01/fabric">
+  <Parameters>
+    <Parameter Name="Chessboard_MinReplicaSetSize" DefaultValue="3" />
+    <Parameter Name="Chessboard_TargetReplicaSetSize" DefaultValue="2" />
+    <Parameter Name="ChessboardObserver_MinReplicaSetSize" DefaultValue="3" />
+    <Parameter Name="ChessboardObserver_PartitionCount" DefaultValue="1" />
+    <Parameter Name="ChessboardObserver_TargetReplicaSetSize" DefaultValue="3" />
+    <Parameter Name="AgentDispenserActorService_PartitionCount" DefaultValue="10" />
+    <Parameter Name="AgentDispenserActorService_MinReplicaSetSize" DefaultValue="2" />
+    <Parameter Name="AgentDispenserActorService_TargetReplicaSetSize" DefaultValue="3" />
+    <Parameter Name="King_PartitionCount" DefaultValue="10" />
+    <Parameter Name="King_MinReplicaSetSize" DefaultValue="2" />
+    <Parameter Name="King_TargetReplicaSetSize" DefaultValue="3" />
+    <Parameter Name="PlayerActorService_PartitionCount" DefaultValue="10" />
+    <Parameter Name="PlayerActorService_MinReplicaSetSize" DefaultValue="2" />
+    <Parameter Name="PlayerActorService_TargetReplicaSetSize" DefaultValue="3" />
+  </Parameters>
+  <!-- ServicePackage から ServiceManifest をインポートします。ServiceManifestName と ServiceManifestVersion は、
+       ServiceManifest.xml ファイルで定義されている ServiceManifest 要素の [Name] 属性と [Version] 属性と 
+       一致しなければなりません。-->
+  <ServiceManifestImport>
+    <ServiceManifestRef ServiceManifestName="PlayerPkg" ServiceManifestVersion="1.0.0" />
+  </ServiceManifestImport>
+  <ServiceManifestImport>
+    <ServiceManifestRef ServiceManifestName="KingPkg" ServiceManifestVersion="1.0.0" />
+  </ServiceManifestImport>
+  <ServiceManifestImport>
+    <ServiceManifestRef ServiceManifestName="ChessPiecePkg" ServiceManifestVersion="1.0.0" />
+  </ServiceManifestImport>
+  <ServiceManifestImport>
+    <ServiceManifestRef ServiceManifestName="ChessboardPkg" ServiceManifestVersion="1.0.0" />
+    <ConfigOverrides />
+  </ServiceManifestImport>
+  <ServiceManifestImport>
+    <ServiceManifestRef ServiceManifestName="ChessboardObserverPkg" ServiceManifestVersion="1.0.0" />
+    <ConfigOverrides />
+  </ServiceManifestImport>
+  <ServiceManifestImport>
+    <ServiceManifestRef ServiceManifestName="AgentDispenserPkg" ServiceManifestVersion="1.0.0" />
+  </ServiceManifestImport>
+  <ServiceManifestImport>
+    <ServiceManifestRef ServiceManifestName="AgentDispenserPkg" ServiceManifestVersion="1.0.0" />
+    <ConfigOverrides />
+  </ServiceManifestImport>
+  <ServiceManifestImport>
+    <ServiceManifestRef ServiceManifestName="AgentPkg" ServiceManifestVersion="1.0.0" />
+  </ServiceManifestImport>
+  <DefaultServices>
+    <!-- 以下のセクションでは、このアプリケーション型のインスタンスが 
+         作成されるときにサービス型のインスタンスが作成されます。また、ServiceFabric PowerShell
+         モジュールを使用してサービス型の 1 つ以上のインスタンスを作成することもできます。
+         
+         以下の ServiceTypeName 属性は、インポートされた ServiceManifest.xml ファイル内で定義されている名前と一致していなければなりません。-->
+    <Service Name="Chessboard">
+      <StatefulService ServiceTypeName="ChessboardType" TargetReplicaSetSize="[Chessboard_TargetReplicaSetSize]" MinReplicaSetSize="[Chessboard_MinReplicaSetSize]">
+        <NamedPartition>
+          <Partition Name="3" />
+          <Partition Name="4" />
+          <Partition Name="9" />
+          <Partition Name="10" />
+          <Partition Name="13" />
+          <Partition Name="14" />
+          <Partition Name="15" />
+          <Partition Name="16" />
+          <Partition Name="17" />
+          <Partition Name="18" />
+          <Partition Name="19" />
+          <Partition Name="20" />
+          <Partition Name="21" />
+          <Partition Name="22" />
+          <Partition Name="23" />
+          <Partition Name="24" />
+          <Partition Name="27" />
+          <Partition Name="28" />
+          <Partition Name="33" />
+          <Partition Name="34" />
+        </NamedPartition>
+      </StatefulService>
+    </Service>
+    <Service Name="ChessboardObserver">
+      <StatefulService ServiceTypeName="ChessboardObserverType" TargetReplicaSetSize="[ChessboardObserver_TargetReplicaSetSize]" MinReplicaSetSize="[ChessboardObserver_MinReplicaSetSize]">
+        <UniformInt64Partition PartitionCount="[ChessboardObserver_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
+      </StatefulService>
+    </Service>
+    <Service Name="AgentDispenserActorService" GeneratedIdRef="34c947eb-c197-4bde-b7d5-4ba41f4f2935|Persisted">
+      <StatefulService ServiceTypeName="AgentDispenserActorServiceType" TargetReplicaSetSize="[AgentDispenserActorService_TargetReplicaSetSize]" MinReplicaSetSize="[AgentDispenserActorService_MinReplicaSetSize]">
+        <UniformInt64Partition PartitionCount="[AgentDispenserActorService_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
+      </StatefulService>
+    </Service>
+    <Service Name="King" GeneratedIdRef="8f655d3c-a0de-403e-b0c6-ea6491c1a9d0|None">
+      <StatefulService ServiceTypeName="KingType" TargetReplicaSetSize="[King_TargetReplicaSetSize]" MinReplicaSetSize="[King_MinReplicaSetSize]">
+        <UniformInt64Partition PartitionCount="[King_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
+      </StatefulService>
+    </Service>
+    <Service Name="PlayerActorService" GeneratedIdRef="d300407d-f80f-4c13-86ae-64d14e28c45d|Persisted">
+      <StatefulService ServiceTypeName="PlayerActorServiceType" TargetReplicaSetSize="[PlayerActorService_TargetReplicaSetSize]" MinReplicaSetSize="[PlayerActorService_MinReplicaSetSize]">
+        <UniformInt64Partition PartitionCount="[PlayerActorService_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
+      </StatefulService>
+    </Service>
+  </DefaultServices>
+</ApplicationManifest>

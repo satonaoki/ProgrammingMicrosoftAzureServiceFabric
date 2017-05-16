@@ -1,12 +1,8 @@
-﻿using ActorSwarm.Common;
-using ActorSwarm.Interfaces;
+﻿using ActorSwarm.Interfaces;
+using Common;
 using Microsoft.ServiceFabric.Actors;
+using Microsoft.ServiceFabric.Actors.Client;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace SwarmTest
 {
@@ -14,11 +10,12 @@ namespace SwarmTest
     {
         static void Main(string[] args)
         {
-            Console.Write("Press [Enter] to start.");
-            Console.ReadLine();
+            //Console.Write("Press [Enter] to start.");
+            //Console.ReadLine();
 
             int size = 50;
-            var swarm = ActorProxy.Create<IActorSwarm>(new ActorId("1"), "fabric:/ActorSwarmApplication", "SpatialSwarm");
+            //var swarm = ActorProxy.Create<IActorSwarm>(new ActorId("1"), "fabric:/ActorSwarmApplication", "SpatialSwarm");
+            var swarm = ActorProxy.Create<IActorSwarm>(new ActorId("1"), new Uri("fabric:/ActorSwarmApplication/SpatialSwarm"));
             swarm.InitializeAsync(size, 0.65f).Wait();
 
             int iterations = 2000;

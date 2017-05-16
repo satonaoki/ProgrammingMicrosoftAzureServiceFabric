@@ -1,11 +1,12 @@
-﻿using ProductActor.Interfaces;
-using Common;
+﻿using Common;
 using Microsoft.ServiceFabric.Actors;
+using Microsoft.ServiceFabric.Actors.Client;
 using Microsoft.ServiceFabric.Services.Communication.Runtime;
 using Microsoft.ServiceFabric.Services.Runtime;
+using ProductActor.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Fabric;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -16,6 +17,10 @@ namespace Gateway
     /// </summary>
     internal sealed class Gateway : StatelessService, IWebSocketConnectionHandler
     {
+        public Gateway(StatelessServiceContext serviceContext) : base(serviceContext)
+        {
+        }
+
         public async Task<byte[]> ProcessWsMessageAsync(byte[] wsrequest, CancellationToken cancellationToken)
         {
             ProtobufWsSerializer mserializer = new ProtobufWsSerializer();
@@ -46,10 +51,9 @@ namespace Gateway
 
         protected override IEnumerable<ServiceInstanceListener> CreateServiceInstanceListeners()
         {
-            return new[]
-                       {
+            return new[] {
                 new ServiceInstanceListener(
-                    initParams => new WebSocketListener("SalesServiceWS", initParams, () => this),
+                    context => new WebSocketListener("SalesServiceWS", context, () => this),
                     "Websocket")
             };
         }
@@ -68,7 +72,7 @@ namespace Gateway
             {
 
                 // Log what the service is doing
-                ServiceEventSource.Current.ServiceMessage(this, "Working-{0}", iterations++);
+                ServiceEventSource.Current.ServiceMessage(this.Context, "Working-{0}", iterations++);
 
                 // Pause for 1 second before continue processing.
                 await Task.Delay(TimeSpan.FromSeconds(1), cancelServiceInstance);

@@ -1,46 +1,50 @@
-﻿using Microsoft.ServiceFabric.Services.Communication.Runtime;
-using Microsoft.ServiceFabric.Services.Runtime;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Fabric;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Services.Communication.Runtime;
+using Microsoft.ServiceFabric.Services.Runtime;
 
 namespace TimeService
 {
     /// <summary>
-    /// The FabricRuntime creates an instance of this class for each service type instance. 
+    /// Service Fabric ランタイムによって、このクラスのインスタンスがサービス インスタンスごとに作成されます。
     /// </summary>
     internal sealed class TimeService : StatelessService
     {
+        public TimeService(StatelessServiceContext context)
+            : base(context)
+        { }
+
         /// <summary>
-        /// Optional override to create listeners (like tcp, http) for this service instance.
+        /// このサービス レプリカがクライアントやユーザーの要求を処理するために、リスナー (TCP、HTTP など) を作成するようオーバーライドします (省略可能)。
         /// </summary>
-        /// <returns>The collection of listeners.</returns>
+        /// <returns>リスナーのコレクション。</returns>
         protected override IEnumerable<ServiceInstanceListener> CreateServiceInstanceListeners()
         {
-            // TODO: If your service needs to handle user requests, return a list of ServiceReplicaListeners here.
             return new ServiceInstanceListener[0];
         }
 
         /// <summary>
-        /// This is the main entry point for your service instance.
+        /// これは、サービス インスタンスのメイン エントリ ポイントです。
         /// </summary>
-        /// <param name="cancelServiceInstance">Canceled when Service Fabric terminates this instance.</param>
-        protected override async Task RunAsync(CancellationToken cancelServiceInstance)
+        /// <param name="cancellationToken">Service Fabric がこのサービス インスタンスをシャットダウンする必要が生じると、キャンセルされます。</param>
+        protected override async Task RunAsync(CancellationToken cancellationToken)
         {
-            // TODO: Replace the following sample code with your own logic.
+            // TODO: 次のサンプル コードを独自のロジックに置き換えるか、
+            //       サービスで不要な場合にはこの RunAsync オーバーライドを削除します。
 
-            int iterations = 0;
-            // This service instance continues processing until the instance is terminated.
-            while (!cancelServiceInstance.IsCancellationRequested)
+            long iterations = 0;
+
+            while (true)
             {
+                cancellationToken.ThrowIfCancellationRequested();
 
-                // Log what the service is doing
-                ServiceEventSource.Current.ServiceMessage(this, "Working-{0}", iterations++);
+                ServiceEventSource.Current.ServiceMessage(this.Context, "Working-{0}", ++iterations);
 
-                // Pause for 1 second before continue processing.
-                await Task.Delay(TimeSpan.FromSeconds(1), cancelServiceInstance);
+                await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
             }
         }
     }

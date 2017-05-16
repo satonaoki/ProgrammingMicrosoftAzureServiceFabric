@@ -3,17 +3,18 @@ using Microsoft.ServiceFabric.Services.Communication.Runtime;
 using Microsoft.ServiceFabric.Services.Runtime;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Fabric;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace MapService
 {
-    /// <summary>
-    /// The FabricRuntime creates an instance of this class for each service type instance.
-    /// </summary>
     internal sealed class MapService : StatefulService
     {
+        public MapService(StatefulServiceContext context)
+            : base(context)
+        { }
+
         /// <summary>
         /// Optional override to create listeners (like tcp, http) for this service replica.
         /// </summary>
@@ -48,7 +49,7 @@ namespace MapService
                     var result = await myDictionary.TryGetValueAsync(tx, "Counter-1");
 
                     // Log whether the value existed or not.
-                    ServiceEventSource.Current.ServiceMessage(this, "Current Counter Value: {0}",
+                    ServiceEventSource.Current.ServiceMessage(this.Context, "Current Counter Value: {0}",
                         result.HasValue ? result.Value.ToString() : "Value does not exist.");
 
                     // If the "Counter-1" key doesn't exist, set its value to 0

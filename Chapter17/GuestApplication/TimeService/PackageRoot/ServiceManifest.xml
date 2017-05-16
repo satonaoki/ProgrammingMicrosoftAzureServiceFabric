@@ -5,21 +5,24 @@
                  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <ServiceTypes>
-    <StatelessServiceType ServiceTypeName="TimeServiceType" UseImplicitHost="true" />
+    <StatelessServiceType ServiceTypeName="TimeServiceType" UseImplicitHost="true"/>
   </ServiceTypes>
+
   <CodePackage Name="Code" Version="1.0.0">
-    <SetupEntryPoint>
-      <ExeHost>
-        <Program>scripts\updateacl.cmd</Program>
-      </ExeHost>
-    </SetupEntryPoint>
-    <EntryPoint>
-      <ExeHost>
+	<SetupEntryPoint>
+	  <ExeHost>
+		  <Program>Scripts\Updateacl.cmd</Program>
+	  </ExeHost>
+	</SetupEntryPoint>
+	<EntryPoint>
+	  <ExeHost>
         <Program>GuestApplication.exe</Program>
       </ExeHost>
     </EntryPoint>
   </CodePackage>
+
   <ConfigPackage Name="Config" Version="1.0.0" />
+
   <Resources>
     <Endpoints>
       <Endpoint Name="ServiceEndpoint" Protocol="http" Port="8088" Type="Input" />

@@ -1,10 +1,6 @@
-﻿using Microsoft.ServiceFabric.Actors;
+﻿using Microsoft.ServiceFabric.Actors.Runtime;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics.Tracing;
-using System.Fabric;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace ThrottlingActor
@@ -16,32 +12,32 @@ namespace ThrottlingActor
 
         static ActorEventSource()
         {
-            // A workaround for the problem where ETW activities do not get tracked until Tasks infrastructure is initialized.
-            // This problem will be fixed in .NET Framework 4.6.2.
-            Task.Run(() => { }).Wait();
+            // タスク インフラストラクチャが初期化されるまで ETW アクティビティが追跡されないという問題の回避策です。
+            // この問題は .NET Framework 4.6.2 で修正される予定です。
+            Task.Run(() => { });
         }
 
-        // Instance constructor is private to enforce singleton semantics
+        // インスタンス コンストラクターは、シングルトン セマンティックを適用するためにプライベートになっています
         private ActorEventSource() : base() { }
 
-        #region Keywords
-        // Event keywords can be used to categorize events. 
-        // Each keyword is a bit flag. A single event can be associated with multiple keywords (via EventAttribute.Keywords property).
-        // Keywords must be defined as a public class named 'Keywords' inside EventSource that uses them.
+        #region キーワード
+        // イベント キーワードは、イベントを分類するために使用できます。
+        // 各キーワードは、ビット フラグです。1 つのイベントを (EventAttribute.Keywords プロパティを介して) 複数のキーワードに関連付けることができます。
+        // キーワードは、キーワードを使用する EventSource 内で 'Keywords' という名前のパブリック クラスとして定義されていなければなりません。
         public static class Keywords
         {
             public const EventKeywords HostInitialization = (EventKeywords)0x1L;
         }
         #endregion
 
-        #region Events
-        // Define an instance method for each event you want to record and apply an [Event] attribute to it.
-        // The method name is the name of the event.
-        // Pass any parameters you want to record with the event (only primitive integer types, DateTime, Guid & string are allowed).
-        // Each event method implementation should check whether the event source is enabled, and if it is, call WriteEvent() method to raise the event.
-        // The number and types of arguments passed to every event method must exactly match what is passed to WriteEvent().
-        // Put [NonEvent] attribute on all methods that do not define an event.
-        // For more information see https://msdn.microsoft.com/en-us/library/system.diagnostics.tracing.eventsource.aspx
+        #region イベント
+        // 記録して [Event] 属性を適用したいイベントごとにインスタンス メソッドを定義します。
+        // メソッド名は、イベントの名前です。
+        // イベントで記録したい任意のパラメーターを渡します (プリミティブの整数型、DateTime、Guid、文字列のみが許可されています)。
+        // 各イベント メソッドの実装では、イベント ソースが有効かどうかをチェックする必要があります。有効な場合、WriteEvent() メソッドを呼び出してイベントを発生させます。
+        // 各イベント メソッドに渡される引数の数と型は、WriteEvent() に渡される数と型とまったく一致していなければなりません。
+        // [NonEvent] 属性を、イベントを定義しないすべてのメソッドに設定します。
+        // 詳しくは、https://msdn.microsoft.com/ja-jp/library/system.diagnostics.tracing.eventsource.aspx をご覧ください
 
         [NonEvent]
         public void Message(string message, params object[] args)
@@ -64,48 +60,32 @@ namespace ThrottlingActor
         }
 
         [NonEvent]
-        public void ActorMessage(StatelessActor actor, string message, params object[] args)
+        public void ActorMessage(Actor actor, string message, params object[] args)
         {
-            if (this.IsEnabled())
+            if (this.IsEnabled()
+                && actor.Id != null
+                && actor.ActorService != null
+                && actor.ActorService.Context != null
+                && actor.ActorService.Context.CodePackageActivationContext != null)
             {
                 string finalMessage = string.Format(message, args);
                 ActorMessage(
                     actor.GetType().ToString(),
                     actor.Id.ToString(),
-                    actor.ActorService.ServiceInitializationParameters.CodePackageActivationContext.ApplicationTypeName,
-                    actor.ActorService.ServiceInitializationParameters.CodePackageActivationContext.ApplicationName,
-                    actor.ActorService.ServiceInitializationParameters.ServiceTypeName,
-                    actor.ActorService.ServiceInitializationParameters.ServiceName.ToString(),
-                    actor.ActorService.ServiceInitializationParameters.PartitionId,
-                    actor.ActorService.ServiceInitializationParameters.InstanceId,
-                    FabricRuntime.GetNodeContext().NodeName,
+                    actor.ActorService.Context.CodePackageActivationContext.ApplicationTypeName,
+                    actor.ActorService.Context.CodePackageActivationContext.ApplicationName,
+                    actor.ActorService.Context.ServiceTypeName,
+                    actor.ActorService.Context.ServiceName.ToString(),
+                    actor.ActorService.Context.PartitionId,
+                    actor.ActorService.Context.ReplicaId,
+                    actor.ActorService.Context.NodeContext.NodeName,
                     finalMessage);
             }
         }
 
-        [NonEvent]
-        public void ActorMessage(StatefulActorBase actor, string message, params object[] args)
-        {
-            if (this.IsEnabled())
-            {
-                string finalMessage = string.Format(message, args);
-                ActorMessage(
-                    actor.GetType().ToString(),
-                    actor.Id.ToString(),
-                    actor.ActorService.ServiceInitializationParameters.CodePackageActivationContext.ApplicationTypeName,
-                    actor.ActorService.ServiceInitializationParameters.CodePackageActivationContext.ApplicationName,
-                    actor.ActorService.ServiceInitializationParameters.ServiceTypeName,
-                    actor.ActorService.ServiceInitializationParameters.ServiceName.ToString(),
-                    actor.ActorService.ServiceInitializationParameters.PartitionId,
-                    actor.ActorService.ServiceInitializationParameters.ReplicaId,
-                    FabricRuntime.GetNodeContext().NodeName,
-                    finalMessage);
-            }
-        }
-
-        // For very high-frequency events it might be advantageous to raise events using WriteEventCore API.
-        // This results in more efficient parameter handling, but requires explicit allocation of EventData structure and unsafe code.
-        // To enable this code path, define UNSAFE conditional compilation symbol and turn on unsafe code support in project properties.
+        // 非常に頻度の高いイベントの場合、WriteEventCore API を使用してイベントを発生させると便利なときがあります。
+        // これによってパラメーターの処理が効率的になりますが、EventData 構造とアンセーフ コードを明示的に割り当てることが必要になります。
+        // このコード パスを有効にするには、UNSAFE 条件付きコンパイル シンボルを定義し、プロジェクト プロパティでアンセーフ コードのサポートを有効にします。
         private const int ActorMessageEventId = 2;
         [Event(ActorMessageEventId, Level = EventLevel.Informational, Message = "{9}")]
         private
@@ -166,7 +146,7 @@ namespace ThrottlingActor
         }
         #endregion
 
-        #region Private Methods
+        #region プライベート メソッド
 #if UNSAFE
             private int SizeInBytes(string s)
             {

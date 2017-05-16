@@ -1,56 +1,60 @@
-﻿using ProductActor.Interfaces;
-using Microsoft.ServiceFabric.Actors;
+﻿using Microsoft.ServiceFabric.Actors;
+using Microsoft.ServiceFabric.Actors.Runtime;
+using ProductActor.Interfaces;
 using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace ProductActor
 {
     /// <remarks>
-    /// Each ActorID maps to an instance of this class.
-    /// The IProjName  interface (in a separate DLL that client code can
-    /// reference) defines the operations exposed by ProjName objects.
+    /// このクラスはアクターを表します。
+    /// 各 ActorID がこのクラスのインスタンスにマップされます。
+    /// StatePersistence 属性はアクターの状態の永続化とレプリケーションを次のように決定します:
+    ///  - 永続化: 状態はディスクに書き込まれ、レプリケートされます。
+    ///  - 可変: 状態はメモリにのみ保持され、レプリケートされます。
+    ///  - なし: 状態はメモリにのみ保持され、レプリケートされません。
     /// </remarks>
-internal class ProductActor : StatefulActor<ProductActor.ActorState>, IProductActor
-{
-    [DataContract]
-    internal sealed class ActorState
+    [StatePersistence(StatePersistence.Persisted)]
+    internal class ProductActor : Actor, IProductActor
     {
-        [DataMember]
-        public int Sales { get; set; }
-
-        public override string ToString()
+        /// <summary>
+        /// ProductActor の新しいインスタンスを初期化します
+        /// </summary>
+        /// <param name="actorService">このアクター インスタンスをホストする Microsoft.ServiceFabric.Actors.Runtime.ActorService。</param>
+        /// <param name="actorId">このアクター インスタンスの Microsoft.ServiceFabric.Actors.ActorId。</param>
+        public ProductActor(ActorService actorService, ActorId actorId)
+            : base(actorService, actorId)
         {
-            return string.Format(CultureInfo.InvariantCulture, "ProductActor.ActorState[Sales = {0}]", Sales);
-        }
-    }
-    protected override Task OnActivateAsync()
-    {
-        if (this.State == null)
-        {
-            this.State = new ActorState { Sales = 0 };
         }
 
-        ActorEventSource.Current.ActorMessage(this, "State initialized to {0}", this.State);
-        return Task.FromResult(true);
-    }
+        public async Task<int> GetSalesAsync()
+        {
+            var data = await this.StateManager.GetStateAsync<int>("Sales");
+            ActorEventSource.Current.ActorMessage(this, "Getting current sales value as {0}", data);
+            return data;
+        }
 
-    [Readonly]
-    Task<int> IProductActor.GetSalesAsync()
-    {
-        ActorEventSource.Current.ActorMessage(this, "Getting current sales value as {0}", this.State.Sales);
-        return Task.FromResult(this.State.Sales);
-    }
+        public async Task SellAsync()
+        {
+            var data = await this.StateManager.GetStateAsync<int>("Sales");
+            data += 1;
+            await this.StateManager.SetStateAsync<int>("Sales", data);
+        }
 
-    Task IProductActor.SellAsync()
-    {
-            
-        this.State.Sales += 1;  
-        return Task.FromResult(true);
+        /// <summary>
+        /// このメソッドはアクターがアクティブになると必ず呼び出されます。
+        /// アクターは、メソッドのいずれかが初めて呼び出されるときにアクティブ化されます。
+        /// </summary>
+        protected async override Task OnActivateAsync()
+        {
+            ActorEventSource.Current.ActorMessage(this, "Actor activated.");
+
+            var sales = await this.StateManager.TryGetStateAsync<int>("Sales");
+
+            if (!sales.HasValue)
+            {
+                await this.StateManager.SetStateAsync<int>("Sales", 0);
+            }
+        }
     }
-}
 }
