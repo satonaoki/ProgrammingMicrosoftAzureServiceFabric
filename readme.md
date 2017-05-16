@@ -1,4 +1,4 @@
-#Sample code for "プログラミングAzure Service Fabric" (Programming Azure Service Fabric)
+# Sample code for "プログラミングAzure Service Fabric" (Programming Azure Service Fabric)
 
 ## "プログラミングAzure Service Fabric" (Programming Azure Service Fabric)
 
