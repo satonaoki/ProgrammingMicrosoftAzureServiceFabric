@@ -1,0 +1,54 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.24720.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{A07B5EB6-E848-4116-A8D0-A826331D98C6}") = "ThrottlingActorApplication", "ThrottlingActorApplication\ThrottlingActorApplication.sfproj", "{D0B53363-8CAA-4E65-B217-D807779761E1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThrottlingActor", "ThrottlingActor\ThrottlingActor.csproj", "{15FA6D93-BEC1-4DF0-B5E8-20EB12C74240}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThrottlingActor.Interfaces", "ThrottlingActor.Interfaces\ThrottlingActor.Interfaces.csproj", "{DC767085-1401-498E-BB4F-103F14EDDEE6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestApplication", "TestApplication\TestApplication.csproj", "{854CE70D-6ACE-4218-BCB3-77DBEFB86356}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D0B53363-8CAA-4E65-B217-D807779761E1}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{D0B53363-8CAA-4E65-B217-D807779761E1}.Debug|x64.ActiveCfg = Debug|x64
+		{D0B53363-8CAA-4E65-B217-D807779761E1}.Debug|x64.Build.0 = Debug|x64
+		{D0B53363-8CAA-4E65-B217-D807779761E1}.Debug|x64.Deploy.0 = Debug|x64
+		{D0B53363-8CAA-4E65-B217-D807779761E1}.Release|Any CPU.ActiveCfg = Release|x64
+		{D0B53363-8CAA-4E65-B217-D807779761E1}.Release|x64.ActiveCfg = Release|x64
+		{D0B53363-8CAA-4E65-B217-D807779761E1}.Release|x64.Build.0 = Release|x64
+		{D0B53363-8CAA-4E65-B217-D807779761E1}.Release|x64.Deploy.0 = Release|x64
+		{15FA6D93-BEC1-4DF0-B5E8-20EB12C74240}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{15FA6D93-BEC1-4DF0-B5E8-20EB12C74240}.Debug|x64.ActiveCfg = Debug|x64
+		{15FA6D93-BEC1-4DF0-B5E8-20EB12C74240}.Debug|x64.Build.0 = Debug|x64
+		{15FA6D93-BEC1-4DF0-B5E8-20EB12C74240}.Release|Any CPU.ActiveCfg = Release|x64
+		{15FA6D93-BEC1-4DF0-B5E8-20EB12C74240}.Release|x64.ActiveCfg = Release|x64
+		{15FA6D93-BEC1-4DF0-B5E8-20EB12C74240}.Release|x64.Build.0 = Release|x64
+		{DC767085-1401-498E-BB4F-103F14EDDEE6}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{DC767085-1401-498E-BB4F-103F14EDDEE6}.Debug|x64.ActiveCfg = Debug|x64
+		{DC767085-1401-498E-BB4F-103F14EDDEE6}.Debug|x64.Build.0 = Debug|x64
+		{DC767085-1401-498E-BB4F-103F14EDDEE6}.Release|Any CPU.ActiveCfg = Release|x64
+		{DC767085-1401-498E-BB4F-103F14EDDEE6}.Release|x64.ActiveCfg = Release|x64
+		{DC767085-1401-498E-BB4F-103F14EDDEE6}.Release|x64.Build.0 = Release|x64
+		{854CE70D-6ACE-4218-BCB3-77DBEFB86356}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{854CE70D-6ACE-4218-BCB3-77DBEFB86356}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{854CE70D-6ACE-4218-BCB3-77DBEFB86356}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{854CE70D-6ACE-4218-BCB3-77DBEFB86356}.Debug|x64.Build.0 = Debug|Any CPU
+		{854CE70D-6ACE-4218-BCB3-77DBEFB86356}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{854CE70D-6ACE-4218-BCB3-77DBEFB86356}.Release|Any CPU.Build.0 = Release|Any CPU
+		{854CE70D-6ACE-4218-BCB3-77DBEFB86356}.Release|x64.ActiveCfg = Release|Any CPU
+		{854CE70D-6ACE-4218-BCB3-77DBEFB86356}.Release|x64.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

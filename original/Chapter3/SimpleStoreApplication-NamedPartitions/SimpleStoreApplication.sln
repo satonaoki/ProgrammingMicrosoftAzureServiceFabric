@@ -1,0 +1,56 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.24720.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{A07B5EB6-E848-4116-A8D0-A826331D98C6}") = "SimpleStoreApplication", "SimpleStoreApplication\SimpleStoreApplication.sfproj", "{CC567E20-DE4F-4DEE-93F4-23358BF839D4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShoppingCartService", "ShoppingCartService\ShoppingCartService.csproj", "{C6F577DE-593F-49A3-8E1C-1E456DF271A4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common.csproj", "{F6B31D44-1E27-4307-8798-91A90B527B3A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleStoreClient", "SimpleStoreClient\SimpleStoreClient.csproj", "{41092639-E1EC-488E-BF4B-A93444665E1F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CC567E20-DE4F-4DEE-93F4-23358BF839D4}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{CC567E20-DE4F-4DEE-93F4-23358BF839D4}.Debug|x64.ActiveCfg = Debug|x64
+		{CC567E20-DE4F-4DEE-93F4-23358BF839D4}.Debug|x64.Build.0 = Debug|x64
+		{CC567E20-DE4F-4DEE-93F4-23358BF839D4}.Debug|x64.Deploy.0 = Debug|x64
+		{CC567E20-DE4F-4DEE-93F4-23358BF839D4}.Release|Any CPU.ActiveCfg = Release|x64
+		{CC567E20-DE4F-4DEE-93F4-23358BF839D4}.Release|x64.ActiveCfg = Release|x64
+		{CC567E20-DE4F-4DEE-93F4-23358BF839D4}.Release|x64.Build.0 = Release|x64
+		{CC567E20-DE4F-4DEE-93F4-23358BF839D4}.Release|x64.Deploy.0 = Release|x64
+		{C6F577DE-593F-49A3-8E1C-1E456DF271A4}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{C6F577DE-593F-49A3-8E1C-1E456DF271A4}.Debug|x64.ActiveCfg = Debug|x64
+		{C6F577DE-593F-49A3-8E1C-1E456DF271A4}.Debug|x64.Build.0 = Debug|x64
+		{C6F577DE-593F-49A3-8E1C-1E456DF271A4}.Release|Any CPU.ActiveCfg = Release|x64
+		{C6F577DE-593F-49A3-8E1C-1E456DF271A4}.Release|x64.ActiveCfg = Release|x64
+		{C6F577DE-593F-49A3-8E1C-1E456DF271A4}.Release|x64.Build.0 = Release|x64
+		{F6B31D44-1E27-4307-8798-91A90B527B3A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F6B31D44-1E27-4307-8798-91A90B527B3A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F6B31D44-1E27-4307-8798-91A90B527B3A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F6B31D44-1E27-4307-8798-91A90B527B3A}.Debug|x64.Build.0 = Debug|Any CPU
+		{F6B31D44-1E27-4307-8798-91A90B527B3A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F6B31D44-1E27-4307-8798-91A90B527B3A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F6B31D44-1E27-4307-8798-91A90B527B3A}.Release|x64.ActiveCfg = Release|Any CPU
+		{F6B31D44-1E27-4307-8798-91A90B527B3A}.Release|x64.Build.0 = Release|Any CPU
+		{41092639-E1EC-488E-BF4B-A93444665E1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{41092639-E1EC-488E-BF4B-A93444665E1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{41092639-E1EC-488E-BF4B-A93444665E1F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{41092639-E1EC-488E-BF4B-A93444665E1F}.Debug|x64.Build.0 = Debug|Any CPU
+		{41092639-E1EC-488E-BF4B-A93444665E1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{41092639-E1EC-488E-BF4B-A93444665E1F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{41092639-E1EC-488E-BF4B-A93444665E1F}.Release|x64.ActiveCfg = Release|Any CPU
+		{41092639-E1EC-488E-BF4B-A93444665E1F}.Release|x64.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
