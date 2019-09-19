@@ -1,5 +1,7 @@
 # Sample code for "プログラミングAzure Service Fabric" (Programming Azure Service Fabric)
 
+Updated sample code in order to work with the latest version of Azure Service Fabric at the time of translation.
+
 ## "プログラミングAzure Service Fabric" (Programming Azure Service Fabric)
 
 * Japanese Translation
